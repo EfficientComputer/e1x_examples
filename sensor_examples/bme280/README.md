@@ -1,4 +1,4 @@
-# BME280 — Environmental Sensor
+# BME280 - Environmental Sensor
 
 ## Overview
 

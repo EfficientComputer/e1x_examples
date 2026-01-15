@@ -1,4 +1,4 @@
-# ADXL372 — High-G Accelerometer
+# ADXL372 - High-G Accelerometer
 
 ## Overview
 

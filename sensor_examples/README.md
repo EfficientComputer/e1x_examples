@@ -8,13 +8,14 @@ This project provides example apps demonstrating how to interface various sensor
 
 ## Apps
 
-### ADXL372 — High-G Accelerometer
-
-### BME280 — Environmental Sensor
+* ADXL372 - High-G Accelerometer
+* BME280 - Environmental Sensor
 
 ## Getting Started
 
 If you haven't already, please make sure you've set up your board and development environment using our [Evaluation Kit Setup Instructions](https://docs.efficient.computer/evaluation-kit). Please note that this this project does not support our Cloud EVK.
+
+Additional details as well as connection instructions are contained within each app's folder.
 
 
 ### App/Sensor Configuration
