@@ -1,6 +1,9 @@
-#define DEFINE_SAMPLE_INPUT
-#include "fft4k.h"
+#include <eff.h>
+#include <eff/profile.h>
 #include <stdio.h>
+
+#define DEFINE_SAMPLE_INPUT
+#include "fft.h"
 
 fft_cpx out_buf[FFT_SIZE] = {0};
 
@@ -9,7 +12,10 @@ extern int32_t expectedI[FFT_SIZE];
 
 int main() {
     // Run FFT
-    fft4((fft_cpx*)sample_input, out_buf);
+    START_PROFILE_REGION("kernel");
+    for (int iter = 0; iter < 10; iter++)
+        fft4((fft_cpx*)sample_input, out_buf);
+    END_PROFILE_REGION();
 
     // Check answer against reference.
     for (int i = 0; FFT_SIZE > i; i++) {

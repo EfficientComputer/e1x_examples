@@ -1,5 +1,5 @@
 #define DEFINE_TWIDDLES
-#include "fft4k.h"
+#include "fft.h"
 
 #define FIXED_ROUND(x) \
     (fft_scalar)(((x) + (1 << (FRACBITS - 1))) >> FRACBITS)

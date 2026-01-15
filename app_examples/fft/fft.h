@@ -1,4 +1,4 @@
-#include "fft4k_twiddles.h.inc"
+#include "fft_twiddles.h"
 
 #define fft_scalar int16_t
 
