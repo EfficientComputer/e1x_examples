@@ -8,8 +8,8 @@ This project provides example apps demonstrating how to interface various sensor
 
 ## Apps
 
-* ADXL372 - High-G Accelerometer
-* BME280 - Environmental Sensor
+* **ADXL372** - High-G Accelerometer
+* **BME280** - Environmental Sensor
 
 ## Getting Started
 
