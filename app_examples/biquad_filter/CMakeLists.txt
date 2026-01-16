@@ -3,7 +3,7 @@ include_directories(biquad_filter ${CMAKE_CURRENT_BINARY_DIR})
 add_eff_app(biquad_filter
     TYPE exe
     ARCHS e1x
-    TARGETS fabric sim scalar
+    TARGETS fabric scalar
     SOURCE main.c biquad_filter.c biquad_filter_input.h.inc
     )
 
