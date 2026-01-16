@@ -10,8 +10,6 @@ file(REAL_PATH "$ENV{HOME}/effcc/sdk" EFF_SDK_ROOT_DIR)
 include(${EFF_SDK_ROOT_DIR}/setup_sdk.cmake)
 add_subdirectory(${EFF_SDK_ROOT_DIR} sdk)
 
-add_compile_definitions(__efficient__=__effcc_rip)
-
 add_subdirectory(biquad_filter)
 add_subdirectory(conv5x5)
 add_subdirectory(fft)

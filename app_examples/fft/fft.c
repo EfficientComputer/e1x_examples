@@ -7,7 +7,7 @@
 #define SAMP_MAX 32767
 #define FRACBITS 15
 
-__effcc_rip 
+__efficient__
 void fft_init_dst(fft_cpx* dst, fft_cpx* src,
                                   int size) {
     // Computing log2(size)
@@ -38,7 +38,7 @@ void fft_init_dst(fft_cpx* dst, fft_cpx* src,
     }
 }
 
-__effcc_rip 
+__efficient__
 void kiss_fft_run_layer(fft_cpx* data, int twiddleStart,
                                    int idxStride, int scheduleLen) {
     for (int i = 0; i < scheduleLen; i++) {
