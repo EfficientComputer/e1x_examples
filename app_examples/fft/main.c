@@ -20,14 +20,14 @@ int main() {
     // Check answer against reference.
     for (int i = 0; FFT_SIZE > i; i++) {
         if (expectedR[i] != out_buf[i].r) {
-            printf("[fft4k] FAIL (r:%d) %d\n", i, out_buf[i].r);
+            printf("[fft4k] FAIL (r:%d) %d\r\n", i, out_buf[i].r);
             return 0;
         }
         if (expectedI[i] != out_buf[i].i) {
-            printf("[fft4k] FAIL (i:%d)\n", i);
+            printf("[fft4k] FAIL (i:%d)\r\n", i);
             return 0;
         }
     }
 
-    printf("[fft4k] PASS\n");
+    printf("[fft4k] PASS\r\n");
 }

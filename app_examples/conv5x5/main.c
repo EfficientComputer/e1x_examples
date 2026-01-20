@@ -44,7 +44,7 @@ void print_matrix(const data_t *mat, int n, int stride) {
         for (int j = 0; j < n; j++) {
             printf("%08x ", mat[i * stride + j]);
         }
-        printf("\n");
+        printf("\r\n");
     }
 }
 
@@ -78,13 +78,13 @@ int main() {
     for (int i = 0; i < N - 4; i++) {
         for (int j = 0; j < N - 4; j++) {
             if ((int)ref_out[i + j * N] != (int)test_out[i + j * N]) {
-                printf("[conv5x5] FAIL i: %d j: %d - %d != %d\n", i, j,
+                printf("[conv5x5] FAIL i: %d j: %d - %d != %d\r\n", i, j,
                        (int)ref_out[i + j * N], (int)test_out[i + j * N]);
                 return 1;
             }
         }
     }
 
-    printf("[conv5x5] PASS\n");
+    printf("[conv5x5] PASS\r\n");
     return 0;
 }

@@ -63,12 +63,12 @@ int main() {
     for (uint32_t i = 0; i < MAT_REF_SIZE; i++) {
         for (uint32_t j = 0; j < MAT_REF_SIZE; j++) {
             if (mat_z[i][j] != mat_z_ref[i][j]) {
-                printf("FAIL\n");
+                printf("FAIL\r\n");
                 return 0;
             }
         }
     }
 
-    printf("PASS\n");
+    printf("PASS\r\n");
     return 0;
 }

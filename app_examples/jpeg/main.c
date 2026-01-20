@@ -29,10 +29,10 @@ int main() {
 
     // comparing the result - allowed to be up to 2% off (float vs fixed point)
     if (abs(output_arr_length - answer_length) > answer_length / 50) {
-        printf("[jpeg] FAIL: Encoded jpeg doesn't match answer's size. Got %d expected %d\n", output_arr_length, answer_length);
+        printf("[jpeg] FAIL: Encoded jpeg doesn't match answer's size. Got %d expected %d\r\n", output_arr_length, answer_length);
         return 1;
     }
 
-    printf("[jpeg] PASS\n");
+    printf("[jpeg] PASS\r\n");
     return 0;
 }

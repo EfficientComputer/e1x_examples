@@ -145,12 +145,12 @@ int test() {
 
     for(int i = 0; i < CODEWORD_SIZE; ++i) {
         if(_test_codeword_decision[i] != _test_codeword[i]) {
-            printf("[ldpc] FAIL\n");
+            printf("[ldpc] FAIL\r\n");
             return 1;
         }
     }
-    printf("LDPC error corrected in %d iterations\n", num_iters);
-    printf("[ldpc] PASS\n");
+    printf("LDPC error corrected in %d iterations\r\n", num_iters);
+    printf("[ldpc] PASS\r\n");
 
     return 0;
 }

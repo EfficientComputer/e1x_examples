@@ -30,10 +30,10 @@ int main() {
     }
     
     if ((err / (INPUT_SIZE - 100)) > 660) {
-        printf("[biquad_filter] FAIL - Average error exceeded threshold: %d\n", err / (INPUT_SIZE - 100));
+        printf("[biquad_filter] FAIL - Average error exceeded threshold: %d\r\n", err / (INPUT_SIZE - 100));
         return 1;
     }
 
-    printf("[biquad_filter] PASS\n");
+    printf("[biquad_filter] PASS\r\n");
     return 0;
 }

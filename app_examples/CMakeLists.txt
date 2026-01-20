@@ -12,6 +12,7 @@ add_subdirectory(${EFF_SDK_ROOT_DIR} sdk)
 
 add_subdirectory(biquad_filter)
 add_subdirectory(conv5x5)
+add_subdirectory(dmm)
 add_subdirectory(fft)
 add_subdirectory(jpeg)
 add_subdirectory(ldpc)
