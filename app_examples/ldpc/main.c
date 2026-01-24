@@ -41,13 +41,8 @@ int _test_codeword_decision[CODEWORD_SIZE];
 int _mLv2c[PARITY_NNZ];
 int _mLc2v[PARITY_NNZ];
 
-#ifndef EFF_BLD_HAND_OPTIMIZED
-int _F[CODEWORD_SIZE];
-int _B[CODEWORD_SIZE];
-#else
 int _F[CODEWORD_SIZE * MAX_CHECK_NODE_NNZ];
 int _B[CODEWORD_SIZE * MAX_CHECK_NODE_NNZ];
-#endif
 
 int _codeword_llrs_acc[CODEWORD_SIZE];
 int _syndrome[MESSAGE_SIZE];

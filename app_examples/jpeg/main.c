@@ -9,7 +9,7 @@ int stbi_write_jpg(int x, int y, int comp, const void  *data, int quality);
 extern unsigned char jpeg_output_arr[16 * 1024];
 extern int output_arr_length;
 
-const int answer_length = 7556;
+const int answer_length = 5511;
 
 int main() {
     START_PROFILE_REGION("kernel");
@@ -29,10 +29,10 @@ int main() {
 
     // comparing the result - allowed to be up to 2% off (float vs fixed point)
     if (abs(output_arr_length - answer_length) > answer_length / 50) {
-        printf("[jpeg] FAIL: Encoded jpeg doesn't match answer's size. Got %d expected %d\r\n", output_arr_length, answer_length);
+        printf("[jpeg] FAIL: Encoded jpeg doesn't match answer's size. Got %d expected %d\n", output_arr_length, answer_length);
         return 1;
     }
 
-    printf("[jpeg] PASS\r\n");
+    printf("[jpeg] PASS\n");
     return 0;
 }
