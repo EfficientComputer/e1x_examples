@@ -1,6 +1,7 @@
-#define DEFINE_SAMPLE_INPUT
-#include "fft4k.h"
 #include <stdio.h>
+
+#define DEFINE_SAMPLE_INPUT
+#include "fft.h"
 
 fft_cpx out_buf[FFT_SIZE] = {0};
 
