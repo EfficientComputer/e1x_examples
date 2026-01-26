@@ -1,4 +1,4 @@
-# Optimized Biquad IIR Filter
+# Optimized Dense Matrix Multiply
 
 This example provides an **optimized Dense Matrix Multiply (DMM)** tailored for Efficient Computer (EFF) hardware.  
 It is designed to showcase **real-world performance** and highlight the advantages of EFF’s architecture.
