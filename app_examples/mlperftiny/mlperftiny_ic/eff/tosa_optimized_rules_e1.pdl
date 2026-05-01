@@ -1,0 +1,357 @@
+module {
+
+    pdl.pattern @conv2d_stride_1_pad_1_ic_16 : benefit(1) {
+        // Types
+        %inpTy = pdl.type
+        %wTy   = pdl.type
+        %resTy = pdl.type
+
+        // Operands with types
+        %inp   = pdl.operand : %inpTy
+        %w     = pdl.operand : %wTy
+        %bias  = pdl.operand
+        %pad0  = pdl.operand
+        %pad1  = pdl.operand
+
+        // Attributes from original pattern
+        %a = pdl.attribute = array<i64: 1, 1>
+        %b = pdl.attribute = array<i64: 1, 1, 1, 1>
+
+        // Dim index for IC in OCxHxWxIC layout
+        %dim      = pdl.attribute = 3  : i32
+        %ic_size  = pdl.attribute = 16 : i32
+
+        // Match tosa.conv2d
+        %root = pdl.operation "tosa.conv2d"
+                        (%inp, %w, %bias, %pad0, %pad1
+                            : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                        {"stride" = %a, "pad" = %b}
+                        -> (%resTy : !pdl.type)
+
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %dim, %ic_size : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        pdl.rewrite %root {
+            %customName = pdl.attribute = "conv2d_stride_1_pad_1"
+            %empty      = pdl.attribute = ""
+            %custom = pdl.operation "tosa.custom"
+                                (%inp, %w, %bias, %pad0, %pad1
+                                    : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                                {"operator_name"       = %customName,
+                                "domain_name"          = %empty,
+                                "implementation_attrs" = %empty}
+                                -> (%resTy : !pdl.type)
+            pdl.replace %root with %custom
+        }
+    }
+
+    pdl.pattern @conv2d_stride_1_pad_1_ic_32 : benefit(1) {
+        // Types
+        %inpTy = pdl.type
+        %wTy   = pdl.type
+        %resTy = pdl.type
+
+        // Operands with types
+        %inp   = pdl.operand : %inpTy
+        %w     = pdl.operand : %wTy
+        %bias  = pdl.operand
+        %pad0  = pdl.operand
+        %pad1  = pdl.operand
+
+        // Attributes from original pattern
+        %a = pdl.attribute = array<i64: 1, 1>
+        %b = pdl.attribute = array<i64: 1, 1, 1, 1>
+
+        // Dim index for IC in OCxHxWxIC layout
+        %dim      = pdl.attribute = 3  : i32
+        %ic_size  = pdl.attribute = 32 : i32
+
+        // Match tosa.conv2d
+        %root = pdl.operation "tosa.conv2d"
+                        (%inp, %w, %bias, %pad0, %pad1
+                            : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                        {"stride" = %a, "pad" = %b}
+                        -> (%resTy : !pdl.type)
+
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %dim, %ic_size : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        pdl.rewrite %root {
+            %customName = pdl.attribute = "conv2d_stride_1_pad_1"
+            %empty      = pdl.attribute = ""
+            %custom = pdl.operation "tosa.custom"
+                                (%inp, %w, %bias, %pad0, %pad1
+                                    : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                                {"operator_name"       = %customName,
+                                "domain_name"          = %empty,
+                                "implementation_attrs" = %empty}
+                                -> (%resTy : !pdl.type)
+            pdl.replace %root with %custom
+        }
+    }
+
+    pdl.pattern @conv2d_stride_1_pad_1_ic_64 : benefit(1) {
+        // Types
+        %inpTy = pdl.type
+        %wTy   = pdl.type
+        %resTy = pdl.type
+
+        // Operands with types
+        %inp   = pdl.operand : %inpTy
+        %w     = pdl.operand : %wTy
+        %bias  = pdl.operand
+        %pad0  = pdl.operand
+        %pad1  = pdl.operand
+
+        // Attributes from original pattern
+        %a = pdl.attribute = array<i64: 1, 1>
+        %b = pdl.attribute = array<i64: 1, 1, 1, 1>
+
+        // Dim index for IC in OCxHxWxIC layout
+        %dim      = pdl.attribute = 3  : i32
+        %ic_size  = pdl.attribute = 64 : i32
+
+        // Match tosa.conv2d
+        %root = pdl.operation "tosa.conv2d"
+                        (%inp, %w, %bias, %pad0, %pad1
+                            : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                        {"stride" = %a, "pad" = %b}
+                        -> (%resTy : !pdl.type)
+
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %dim, %ic_size : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        pdl.rewrite %root {
+            %customName = pdl.attribute = "conv2d_stride_1_pad_1"
+            %empty      = pdl.attribute = ""
+            %custom = pdl.operation "tosa.custom"
+                                (%inp, %w, %bias, %pad0, %pad1
+                                    : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                                {"operator_name"       = %customName,
+                                "domain_name"          = %empty,
+                                "implementation_attrs" = %empty}
+                                -> (%resTy : !pdl.type)
+            pdl.replace %root with %custom
+        }
+    }
+
+    pdl.pattern @conv2d_stride_2_pad_corner_ic_16 : benefit(1) {
+        // Types
+        %inpTy = pdl.type
+        %wTy   = pdl.type
+        %resTy = pdl.type
+
+        // Operands with types
+        %inp   = pdl.operand : %inpTy
+        %w     = pdl.operand : %wTy
+        %bias  = pdl.operand
+        %pad0  = pdl.operand
+        %pad1  = pdl.operand
+
+        // Attributes from original pattern
+        %a = pdl.attribute = array<i64: 2, 2>
+        %b = pdl.attribute = array<i64: 0, 1, 0, 1>
+
+        // Dim index for IC in OCxHxWxIC layout
+        %dim      = pdl.attribute = 3  : i32
+        %ic_size  = pdl.attribute = 16 : i32
+
+        // Match tosa.conv2d
+        %root = pdl.operation "tosa.conv2d"
+                        (%inp, %w, %bias, %pad0, %pad1
+                            : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                        {"stride" = %a, "pad" = %b}
+                        -> (%resTy : !pdl.type)
+
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %dim, %ic_size : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        pdl.rewrite %root {
+            %customName = pdl.attribute = "conv2d_stride_2_pad_1_corner"
+            %empty      = pdl.attribute = ""
+            %custom = pdl.operation "tosa.custom"
+                                (%inp, %w, %bias, %pad0, %pad1
+                                    : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                                {"operator_name"       = %customName,
+                                "domain_name"          = %empty,
+                                "implementation_attrs" = %empty}
+                                -> (%resTy : !pdl.type)
+            pdl.replace %root with %custom
+        }
+    }
+
+    pdl.pattern @conv2d_stride_2_pad_corner_ic_32 : benefit(1) {
+        // Types
+        %inpTy = pdl.type
+        %wTy   = pdl.type
+        %resTy = pdl.type
+
+        // Operands with types
+        %inp   = pdl.operand : %inpTy
+        %w     = pdl.operand : %wTy
+        %bias  = pdl.operand
+        %pad0  = pdl.operand
+        %pad1  = pdl.operand
+
+        // Attributes from original pattern
+        %a = pdl.attribute = array<i64: 2, 2>
+        %b = pdl.attribute = array<i64: 0, 1, 0, 1>
+
+        // Dim index for IC in OCxHxWxIC layout
+        %dim      = pdl.attribute = 3  : i32
+        %ic_size  = pdl.attribute = 32 : i32
+
+        // Match tosa.conv2d
+        %root = pdl.operation "tosa.conv2d"
+                        (%inp, %w, %bias, %pad0, %pad1
+                            : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                        {"stride" = %a, "pad" = %b}
+                        -> (%resTy : !pdl.type)
+
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %dim, %ic_size : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        pdl.rewrite %root {
+            %customName = pdl.attribute = "conv2d_stride_2_pad_1_corner"
+            %empty      = pdl.attribute = ""
+            %custom = pdl.operation "tosa.custom"
+                                (%inp, %w, %bias, %pad0, %pad1
+                                    : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                                {"operator_name"       = %customName,
+                                "domain_name"          = %empty,
+                                "implementation_attrs" = %empty}
+                                -> (%resTy : !pdl.type)
+            pdl.replace %root with %custom
+        }
+    }
+
+    // 1x1 stride-2 convolutions (skip connections)
+    pdl.pattern @conv1x1_stride2_ic_16 : benefit(1) {
+        %inpTy = pdl.type
+        %wTy   = pdl.type
+        %resTy = pdl.type
+        %inp   = pdl.operand : %inpTy
+        %w     = pdl.operand : %wTy
+        %bias  = pdl.operand
+        %pad0  = pdl.operand
+        %pad1  = pdl.operand
+
+        %a = pdl.attribute = array<i64: 2, 2>
+        %b = pdl.attribute = array<i64: 0, 0, 0, 0>
+        %dim      = pdl.attribute = 3  : i32
+        %ic_size  = pdl.attribute = 16 : i32
+
+        %root = pdl.operation "tosa.conv2d"
+                        (%inp, %w, %bias, %pad0, %pad1
+                            : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                        {"stride" = %a, "pad" = %b}
+                        -> (%resTy : !pdl.type)
+
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %dim, %ic_size : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        pdl.rewrite %root {
+            %customName = pdl.attribute = "conv1x1_stride2"
+            %empty      = pdl.attribute = ""
+            %custom = pdl.operation "tosa.custom"
+                                (%inp, %w, %bias, %pad0, %pad1
+                                    : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                                {"operator_name"       = %customName,
+                                "domain_name"          = %empty,
+                                "implementation_attrs" = %empty}
+                                -> (%resTy : !pdl.type)
+            pdl.replace %root with %custom
+        }
+    }
+
+    pdl.pattern @conv1x1_stride2_ic_32 : benefit(1) {
+        %inpTy = pdl.type
+        %wTy   = pdl.type
+        %resTy = pdl.type
+        %inp   = pdl.operand : %inpTy
+        %w     = pdl.operand : %wTy
+        %bias  = pdl.operand
+        %pad0  = pdl.operand
+        %pad1  = pdl.operand
+
+        %a = pdl.attribute = array<i64: 2, 2>
+        %b = pdl.attribute = array<i64: 0, 0, 0, 0>
+        %dim      = pdl.attribute = 3  : i32
+        %ic_size  = pdl.attribute = 32 : i32
+
+        %root = pdl.operation "tosa.conv2d"
+                        (%inp, %w, %bias, %pad0, %pad1
+                            : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                        {"stride" = %a, "pad" = %b}
+                        -> (%resTy : !pdl.type)
+
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %dim, %ic_size : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        pdl.rewrite %root {
+            %customName = pdl.attribute = "conv1x1_stride2"
+            %empty      = pdl.attribute = ""
+            %custom = pdl.operation "tosa.custom"
+                                (%inp, %w, %bias, %pad0, %pad1
+                                    : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                                {"operator_name"       = %customName,
+                                "domain_name"          = %empty,
+                                "implementation_attrs" = %empty}
+                                -> (%resTy : !pdl.type)
+            pdl.replace %root with %custom
+        }
+    }
+
+    pdl.pattern @conv2d_stride_1_pad_1_ic_3 : benefit(1) {
+        // Types
+        %inpTy = pdl.type
+        %wTy   = pdl.type
+        %resTy = pdl.type
+
+        // Operands with types
+        %inp   = pdl.operand : %inpTy
+        %w     = pdl.operand : %wTy
+        %bias  = pdl.operand
+        %pad0  = pdl.operand
+        %pad1  = pdl.operand
+
+        // Attributes from original pattern
+        %a = pdl.attribute = array<i64: 1, 1>
+        %b = pdl.attribute = array<i64: 1, 1, 1, 1>
+
+        // Dim index for IC in OCxHxWxIC layout
+        %dim      = pdl.attribute = 3  : i32
+        %ic_size  = pdl.attribute = 3 : i32
+
+        // Match tosa.conv2d
+        %root = pdl.operation "tosa.conv2d"
+                        (%inp, %w, %bias, %pad0, %pad1
+                            : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                        {"stride" = %a, "pad" = %b}
+                        -> (%resTy : !pdl.type)
+
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %dim, %ic_size : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        pdl.rewrite %root {
+            %customName = pdl.attribute = "conv2d_ch_3_stride_1_pad_1"
+            %empty      = pdl.attribute = ""
+            %custom = pdl.operation "tosa.custom"
+                                (%inp, %w, %bias, %pad0, %pad1
+                                    : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                                {"operator_name"       = %customName,
+                                "domain_name"          = %empty,
+                                "implementation_attrs" = %empty}
+                                -> (%resTy : !pdl.type)
+            pdl.replace %root with %custom
+        }
+    }
+}
