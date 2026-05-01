@@ -1,0 +1,220 @@
+module {
+    pdl.pattern @conv2d_kws_layer_0 : benefit(1) {
+        // Types
+        %inpTy = pdl.type
+        %wTy   = pdl.type
+        %resTy = pdl.type
+
+        // Operands with types
+        %inp       = pdl.operand : %inpTy
+        %w         = pdl.operand : %wTy
+        %bias      = pdl.operand
+        %input_zp  = pdl.operand
+        %weight_zp = pdl.operand
+
+        // Attributes from original pattern
+        %stride = pdl.attribute = array<i64: 2, 2>
+        %pad = pdl.attribute = array<i64: 4, 5, 1, 1>
+
+        // Match tosa.conv2d
+        %root = pdl.operation "tosa.conv2d"
+                        (%inp, %w, %bias, %input_zp, %weight_zp
+                            : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                        {"stride" = %stride, "pad" = %pad}
+                        -> (%resTy : !pdl.type)
+
+        // Constrain filter dimensions: [OC=64, FH=10, FW=4, IC=1]
+        %oc_dim  = pdl.attribute = 0 : i32
+        %fh_dim  = pdl.attribute = 1 : i32
+        %fw_dim  = pdl.attribute = 2 : i32
+        %ic_dim  = pdl.attribute = 3 : i32
+        %size_64 = pdl.attribute = 64 : i32
+        %size_10 = pdl.attribute = 10 : i32
+        %size_4  = pdl.attribute = 4  : i32
+        %size_1  = pdl.attribute = 1  : i32
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %oc_dim, %size_64 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %fh_dim, %size_10 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %fw_dim, %size_4 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %ic_dim, %size_1 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        // Constrain input dimensions: [N, IH=49, IW=10, IC=1]
+        %ih_dim  = pdl.attribute = 1 : i32
+        %iw_dim  = pdl.attribute = 2 : i32
+        %size_49 = pdl.attribute = 49 : i32
+        pdl.apply_native_constraint "check_type"(
+            %inpTy, %ih_dim, %size_49 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %inpTy, %iw_dim, %size_10 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %inpTy, %ic_dim, %size_1 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        pdl.rewrite %root {
+            %customName = pdl.attribute = "conv2d_kws_layer_0"
+            %empty      = pdl.attribute = ""
+            %custom = pdl.operation "tosa.custom"
+                                (%inp, %w, %bias, %input_zp, %weight_zp
+                                    : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                                {"operator_name"       = %customName,
+                                "domain_name"          = %empty,
+                                "implementation_attrs" = %empty}
+                                -> (%resTy : !pdl.type)
+            pdl.replace %root with %custom
+        }
+    }
+
+    pdl.pattern @depthwise_conv2d_kws_layer_1 : benefit(1) {
+        // Types
+        %inpTy = pdl.type
+        %wTy   = pdl.type
+        %resTy = pdl.type
+
+        // Operands with types
+        %inp       = pdl.operand : %inpTy
+        %w         = pdl.operand : %wTy
+        %bias      = pdl.operand
+        %input_zp  = pdl.operand
+        %weight_zp = pdl.operand
+
+        // Attributes from original pattern
+        %stride = pdl.attribute = array<i64: 1, 1>
+        %pad = pdl.attribute = array<i64: 1, 1, 1, 1>
+        %dilation = pdl.attribute = array<i64: 1, 1>
+
+        // Match tosa.depthwise_conv2d
+        %root = pdl.operation "tosa.depthwise_conv2d"
+                        (%inp, %w, %bias, %input_zp, %weight_zp
+                            : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                        {"stride" = %stride, "pad" = %pad, "dilation" = %dilation}
+                        -> (%resTy : !pdl.type)
+
+        // Constrain filter dimensions: [KH=3, KW=3, OC=64] (depthwise layout)
+        %h_dim   = pdl.attribute = 0 : i32
+        %w_dim   = pdl.attribute = 1 : i32
+        %oc_dim  = pdl.attribute = 2 : i32
+        %size_3  = pdl.attribute = 3 : i32
+        %size_64 = pdl.attribute = 64 : i32
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %h_dim, %size_3 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %w_dim, %size_3 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %oc_dim, %size_64 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        // Constrain input dimensions: [N, IH=25, IW=5, IC=64]
+        %ih_dim  = pdl.attribute = 1 : i32
+        %iw_dim  = pdl.attribute = 2 : i32
+        %ic_dim  = pdl.attribute = 3 : i32
+        %size_25 = pdl.attribute = 25 : i32
+        %size_5  = pdl.attribute = 5  : i32
+        pdl.apply_native_constraint "check_type"(
+            %inpTy, %ih_dim, %size_25 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %inpTy, %iw_dim, %size_5 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %inpTy, %ic_dim, %size_64 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        pdl.rewrite %root {
+            %customName = pdl.attribute = "depthwise_conv2d_kws_layer_1"
+            %empty      = pdl.attribute = ""
+            %custom = pdl.operation "tosa.custom"
+                                (%inp, %w, %bias, %input_zp, %weight_zp
+                                    : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                                {"operator_name"       = %customName,
+                                "domain_name"          = %empty,
+                                "implementation_attrs" = %empty}
+                                -> (%resTy : !pdl.type)
+            pdl.replace %root with %custom
+        }
+    }
+
+    pdl.pattern @conv2d_actually_mmm : benefit(1) {
+        // Types
+        %inpTy = pdl.type
+        %wTy   = pdl.type
+        %resTy = pdl.type
+
+        // Operands with types
+        %inp       = pdl.operand : %inpTy
+        %w         = pdl.operand : %wTy
+        %bias      = pdl.operand
+        %input_zp  = pdl.operand
+        %weight_zp = pdl.operand
+
+        // Attributes from original pattern
+        %stride = pdl.attribute = array<i64: 1, 1>
+        %pad = pdl.attribute = array<i64: 0, 0, 0, 0>
+        %dilation = pdl.attribute = array<i64: 1, 1>
+
+        // Match tosa.conv2d
+        %root = pdl.operation "tosa.conv2d"
+                        (%inp, %w, %bias, %input_zp, %weight_zp
+                            : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                        {"stride" = %stride, "pad" = %pad, "dilation" = %dilation}
+                        -> (%resTy : !pdl.type)
+
+        // Constrain filter dimensions: [OC=64, FH=1, FW=1, IC=64]
+        %oc_dim  = pdl.attribute = 0 : i32
+        %fh_dim  = pdl.attribute = 1 : i32
+        %fw_dim  = pdl.attribute = 2 : i32
+        %ic_dim  = pdl.attribute = 3 : i32
+        %size_64 = pdl.attribute = 64 : i32
+        %size_1  = pdl.attribute = 1  : i32
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %oc_dim, %size_64 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %fh_dim, %size_1 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %fw_dim, %size_1 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %wTy, %ic_dim, %size_64 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        // Constrain input dimensions: [N, IH=25, IW=5, IC=64]
+        %ih_dim  = pdl.attribute = 1 : i32
+        %iw_dim  = pdl.attribute = 2 : i32
+        %size_25 = pdl.attribute = 25 : i32
+        %size_5  = pdl.attribute = 5  : i32
+        pdl.apply_native_constraint "check_type"(
+            %inpTy, %ih_dim, %size_25 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %inpTy, %iw_dim, %size_5 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+        pdl.apply_native_constraint "check_type"(
+            %inpTy, %ic_dim, %size_64 : !pdl.type, !pdl.attribute, !pdl.attribute
+        )
+
+        pdl.rewrite %root {
+            %customName = pdl.attribute = "conv2d_kws_layer_2"
+            %empty      = pdl.attribute = ""
+            %custom = pdl.operation "tosa.custom"
+                                (%inp, %w, %bias, %input_zp, %weight_zp
+                                    : !pdl.value, !pdl.value, !pdl.value, !pdl.value, !pdl.value)
+                                {"operator_name"       = %customName,
+                                "domain_name"          = %empty,
+                                "implementation_attrs" = %empty}
+                                -> (%resTy : !pdl.type)
+            pdl.replace %root with %custom
+        }
+    }
+}

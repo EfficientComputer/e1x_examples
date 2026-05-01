@@ -1,0 +1,5 @@
+add_subdirectory(mlperftiny_ad)
+add_subdirectory(mlperftiny_ic)
+add_subdirectory(mlperftiny_kws)
+add_subdirectory(mlperftiny_vww)
+add_subdirectory(mlperftiny_sww)

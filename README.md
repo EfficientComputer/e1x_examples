@@ -16,6 +16,7 @@ Optimized algorithm implementations demonstrating how to leverage E1x's architec
 * **fft** - Fast Fourier Transform (DSP)
 * **jpeg** - JPEG Image Encoder (Multimedia)
 * **ldpc** - LDPC Encoder/Decoder (Communications)
+* **mlperftiny** - MLPerfTiny neural network benchmark suite
 * **quickstart** - Simple "Hello World" example
 
 ---

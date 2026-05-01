@@ -14,6 +14,7 @@ This project provides example apps demonstrating optimized algorithms running on
 * **fft** - Fast Fourier Transform (DSP)
 * **jpeg** - JPEG Image Encoder (Multimedia)
 * **ldpc** - LDPC Encoder/Decoder (Communications)
+* **mlperftiny** - MLPerfTiny neural network benchmark suite
 * **quickstart** - Simple "Hello World" example
 
 ## Getting Started
@@ -21,6 +22,11 @@ This project provides example apps demonstrating optimized algorithms running on
 If you haven't already, please make sure you've set up your board and development environment using our [Evaluation Kit Setup Instructions](https://docs.efficient.computer/evaluation-kit). This project supports both our physical EVK and our Cloud EVK.
 
 Additional details are contained within each app's folder.
+
+The **mlperftiny** folder contains five MLPerfTiny benchmark apps:
+anomaly detection, image classification, keyword spotting, streaming wake word,
+and visual wake words. Each benchmark has its own README with model, input,
+target, and validation details.
 
 ### App Configuration
 
