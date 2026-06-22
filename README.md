@@ -16,6 +16,8 @@ Optimized algorithm implementations demonstrating how to leverage E1x's architec
 * **fft** - Fast Fourier Transform (DSP)
 * **jpeg** - JPEG Image Encoder (Multimedia)
 * **ldpc** - LDPC Encoder/Decoder (Communications)
+* **tinympc** - TinyMPC Quadrotor Model-Predictive Control (Robotics / Control)
+* **tinympc_lpv** - Cache-Scheduled (LPV) Fixed-Wing MPC (Robotics / Control)
 * **quickstart** - Simple "Hello World" example
 
 ---
