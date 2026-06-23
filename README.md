@@ -18,6 +18,7 @@ Optimized algorithm implementations demonstrating how to leverage E1x's architec
 * **ldpc** - LDPC Encoder/Decoder (Communications)
 * **tinympc** - TinyMPC Quadrotor Model-Predictive Control (Robotics / Control)
 * **tinympc_lpv** - Cache-Scheduled (LPV) Fixed-Wing MPC (Robotics / Control)
+* **mekf** - MEKF IMU Attitude Estimator (Sensor Fusion / Robotics)
 * **quickstart** - Simple "Hello World" example
 
 ---
