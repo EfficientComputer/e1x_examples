@@ -33,8 +33,6 @@ def gen_sample_input(size, f1, f2, scale=15000, phase_shift=0):
 def generate_sample(path, size, f1, f2, low_gain, phase_shift):
     with open(path, "w") as f:
         f.write("#include <stdint.h>\n\n")
-        f.write(f"#define SAMPLE_INPUT_SIZE {size}\n")
-        f.write(f"#ifdef DEFINE_SAMPLE_DATA\n")
         f.write(f"const int16_t sample_input[{size}] = {{")
         write_array(f, gen_sample_input(size, f1, f2))
         f.write("};\n\n")
@@ -42,7 +40,6 @@ def generate_sample(path, size, f1, f2, low_gain, phase_shift):
         low = min(f1, f2)
         write_array(f, gen_sample_input(size, low, 0, scale=15000 * low_gain, phase_shift=phase_shift))
         f.write("};\n\n")
-        f.write("#endif\n")
 
     # Make a plot to visualize the input
     try:

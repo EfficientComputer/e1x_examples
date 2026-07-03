@@ -1,5 +1,3 @@
-#include <eff.h>
-#include <stdio.h>
 #include <stdint.h>
 
 typedef int data_t;

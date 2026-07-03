@@ -1,4 +1,5 @@
-#define DEFINE_TWIDDLES
+#include <eff.h>
+
 #include "fft.h"
 
 #define FIXED_ROUND(x) \
@@ -7,9 +8,13 @@
 #define SAMP_MAX 32767
 #define FRACBITS 15
 
-__efficient__ 
-void fft_init_dst(fft_cpx* dst, fft_cpx* src,
-                                  int size) {
+// Generated
+extern const int twiddleSchedule[6];
+extern const int16_t twiddles[10920];
+
+__efficient__
+void fft_init_dst(fft_cpx *dst, fft_cpx *src,
+                                    int size) {
     // Computing log2(size)
     uint32_t log2Size = -1;
     uint32_t sizeShift = size;
@@ -21,21 +26,22 @@ void fft_init_dst(fft_cpx* dst, fft_cpx* src,
     int highShiftAmt = 32 - log2Size + 1;
     int lowShiftAmt = 32 - log2Size - 1;
 
+    __effcc_parallel(16)
     for (int i = 0; i < size; i++) {
-        // Reversing bits of dstIdx (i)
-        uint32_t reversed = __builtin_elementwise_bitreverse(i);
+            // Reversing bits of dstIdx (i)
+            uint32_t reversed = __builtin_elementwise_bitreverse(i);
 
-        // Swapping each pair of bits
-        uint32_t reversedA = reversed & 0xAAAAAAAA;
-        uint32_t reversedB = reversed & 0x55555555;
+            // Swapping each pair of bits
+            uint32_t reversedA = reversed & 0xAAAAAAAA;
+            uint32_t reversedB = reversed & 0x55555555;
 
-        reversedA = reversedA >> highShiftAmt;
-        reversedB = reversedB >> lowShiftAmt;
+            reversedA = reversedA >> highShiftAmt;
+            reversedB = reversedB >> lowShiftAmt;
 
-        uint32_t srcIdx = reversedA | reversedB;
+            uint32_t srcIdx = reversedA | reversedB;
 
-        dst[i] = src[srcIdx];
-    }
+            dst[i] = src[srcIdx];
+        }
 }
 
 __efficient__ 
@@ -150,11 +156,11 @@ void kiss_fft_run_layer(fft_cpx* data, int twiddleStart,
     }
 }
 
-void fft4(fft_cpx* src, fft_cpx* dst) {
-    fft_init_dst(dst, src, FFT_SIZE);
+void fft(fft_cpx* src, fft_cpx* dst, uint16_t dst_size) {
+    fft_init_dst(dst, src, dst_size);
 
     int i = 0;
-    int maxStride = FFT_SIZE;
+    int maxStride = dst_size;
     for (int m = 1; m < maxStride; m *= 4) {
         int scheduleLen = maxStride / (m * 4);
         kiss_fft_run_layer(dst, twiddleSchedule[i], m * 4, scheduleLen);

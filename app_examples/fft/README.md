@@ -75,7 +75,7 @@ EFF hardware enables:
   - Contains the optimized radix-4 FFT implementation
   - `fft_init_dst(...)`: Performs bit-reversal reordering of input data
   - `kiss_fft_run_layer(...)`: Executes a single stage of radix-4 butterflies
-  - `fft4(...)`: Main FFT API that orchestrates all stages
+  - `fft(...)`: Main FFT API that orchestrates all stages
 
 - **`fft.h`**
   - FFT data type definitions (`fft_cpx` for complex numbers)
