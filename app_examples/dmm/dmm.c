@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <eff.h>
@@ -6,29 +5,31 @@
 #define TILE_SIZE_X 4
 #define TILE_SIZE_Y 4
 
-__efficient__
-void reformat(const int32_t* input, int32_t* output, uint32_t rows, uint32_t cols) {
-    for (int y = 0; y < rows; y+=4) {
-        __effcc_parallel(2)
-        for (int x = 0; x < cols; x++) {
-            output[y * cols + x * 4] = input[y * cols + x];
-            output[y * cols + x * 4 + 1] = input[(y + 1) * cols + x];
-            output[y * cols + x * 4 + 2] = input[(y + 2) * cols + x];
-            output[y * cols + x * 4 + 3] = input[(y + 3) * cols + x];
-        }
-    }
-}
-
-__efficient__
-void transpose_reformat(const int32_t* restrict input, int32_t* restrict output,
-                        uint32_t rows, uint32_t cols) {
-    for (int y = 0; y < rows; y+=4) {
+__efficient__ 
+void transpose_reformat(const int32_t *restrict input,
+                                      int32_t *restrict output, uint32_t rows,
+                                      uint32_t cols) {
+    for (int y = 0; y < rows; y += 4) {
         __effcc_parallel(2)
         for (int x = 0; x < cols; x++) {
             output[y * cols + x * 4] = input[x * cols + y];
             output[y * cols + x * 4 + 1] = input[x * cols + (y + 1)];
             output[y * cols + x * 4 + 2] = input[x * cols + (y + 2)];
             output[y * cols + x * 4 + 3] = input[x * cols + (y + 3)];
+        }
+    }
+}
+
+__efficient__
+void reformat(const int32_t *input, int32_t *output,
+                            uint32_t rows, uint32_t cols) {
+    for (int y = 0; y < rows; y += 4) {
+        __effcc_parallel(2)
+        for (int x = 0; x < cols; x++) {
+            output[y * cols + x * 4] = input[y * cols + x];
+            output[y * cols + x * 4 + 1] = input[(y + 1) * cols + x];
+            output[y * cols + x * 4 + 2] = input[(y + 2) * cols + x];
+            output[y * cols + x * 4 + 3] = input[(y + 3) * cols + x];
         }
     }
 }

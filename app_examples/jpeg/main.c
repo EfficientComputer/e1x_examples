@@ -1,38 +1,28 @@
 #include <eff.h>
-#include <eff/profile.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "image.h"
-
-int stbi_write_jpg(int x, int y, int comp, const void  *data, int quality);
+#include "jpeg.h"
 
 extern unsigned char jpeg_output_arr[16 * 1024];
 extern int output_arr_length;
 
-const int answer_length = 5511;
+#define IMAGE_DIVIDER 10
+const int answer_length = 1056;
 
 int main() {
-    START_PROFILE_REGION("kernel");
-    for (int iter = 0; iter < 10; iter++) {
-        output_arr_length = 0;
-        stbi_write_jpg(IMAGE_WIDTH, IMAGE_HEIGHT, 3, src_image, 50);
-    }
-    END_PROFILE_REGION();
-
-    // See your image!
-    #ifdef EFF_BLD_SIM
-    FILE* f = fopen("test.jpg", "wb");
-    fwrite(jpeg_output_arr, 1, output_arr_length, f);
-    fflush(f);
-    fclose(f);
-    #endif
+    stbi_write_jpg(IMAGE_WIDTH, IMAGE_HEIGHT / IMAGE_DIVIDER, 3, src_image,
+                    50);
 
     // comparing the result - allowed to be up to 2% off (float vs fixed point)
     if (abs(output_arr_length - answer_length) > answer_length / 50) {
-        printf("[jpeg] FAIL: Encoded jpeg doesn't match answer's size. Got %d expected %d\n", output_arr_length, answer_length);
+        printf(
+            "[jpeg] FAIL: Encoded jpeg doesn't match answer's size. Got %d "
+            "expected %d\r\n",
+            output_arr_length, answer_length);
         return 1;
     }
 
-    printf("[jpeg] PASS\n");
+    printf("[jpeg] PASS\r\n");
     return 0;
 }

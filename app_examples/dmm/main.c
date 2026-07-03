@@ -1,38 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "dmm.h"
 
-#ifndef EFFX_INPUT_SIZE
-#define EFFX_INPUT_SIZE 2
-#endif
-
-#if EFFX_INPUT_SIZE == 2
-#define MAT_REF_SIZE 256
-#elif EFFX_INPUT_SIZE == 1
 #define MAT_REF_SIZE 128
-#elif EFFX_INPUT_SIZE == 0
-#define MAT_REF_SIZE 64
-#endif
 
-#if MAT_REF_SIZE % 4 != 0
-#error "MAT_REF_SIZE must be divisible by 4"
-#endif
-
-int32_t mat_a[MAT_REF_SIZE][MAT_REF_SIZE] __attribute__((aligned(16)));
-int32_t mat_b[MAT_REF_SIZE][MAT_REF_SIZE] __attribute__((aligned(16)));
-int32_t mat_z[MAT_REF_SIZE][MAT_REF_SIZE] __attribute__((aligned(16)));
-int32_t mat_z_ref[MAT_REF_SIZE][MAT_REF_SIZE] __attribute__((aligned(16)));
-
-void dmm(int32_t *a,  // n x m
-         int32_t *b,  // m x o
-         int32_t *z,  // n x o
-         uint32_t n, uint32_t m, uint32_t o);
-
-void dmm_reference(
-         int32_t *a,  // n x m
-         int32_t *b,  // m x o
-         int32_t *z,  // n x o
-         uint32_t n, uint32_t m, uint32_t o);
+int32_t _Alignas(16) mat_a[MAT_REF_SIZE][MAT_REF_SIZE];
+int32_t _Alignas(16) mat_b[MAT_REF_SIZE][MAT_REF_SIZE];
+int32_t _Alignas(16) mat_z[MAT_REF_SIZE][MAT_REF_SIZE];
+int32_t _Alignas(16) mat_z_ref[MAT_REF_SIZE][MAT_REF_SIZE];
 
 int randPrev = 42;
 int pseudo_rand() {

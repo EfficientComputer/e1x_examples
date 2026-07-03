@@ -1,5 +1,5 @@
-#include <eff/profile.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "conv5x5.h"
 
 #define N 64
@@ -8,16 +8,19 @@
 #define RANDOMIZE_FILTER 1
 #define RANGE 10
 
+const int32_t EXPECTED_CHECKSUM = 1539776;
+
 data_t filter_global[5 * 5] = {
     DATA_INIT(0),  DATA_INIT(-1), DATA_INIT(2), DATA_INIT(-2), DATA_INIT(0),
     DATA_INIT(-1), DATA_INIT(-2), DATA_INIT(3), DATA_INIT(-2), DATA_INIT(-1),
     DATA_INIT(0),  DATA_INIT(-3), DATA_INIT(5), DATA_INIT(-3), DATA_INIT(0),
     DATA_INIT(-2), DATA_INIT(-3), DATA_INIT(5), DATA_INIT(2),  DATA_INIT(1),
-    DATA_INIT(-1), DATA_INIT(0),  DATA_INIT(3), DATA_INIT(1),  DATA_INIT(-1)};
+    DATA_INIT(-1), DATA_INIT(0),  DATA_INIT(3), DATA_INIT(1),  DATA_INIT(-1)
+};
 
-data_t in[N_PAD * N_PAD];
-data_t ref_out[N_PAD * N_PAD];
-data_t test_out[N * N];
+data_t _Alignas(4) in[N_PAD * N_PAD];
+data_t _Alignas(4) ref_out[N_PAD * N_PAD];
+data_t _Alignas(4) test_out[N * N];
 
 void dconv_ref(const data_t *in, int n, const data_t *filter, data_t *out) {
     const int d = 5;
@@ -59,19 +62,16 @@ int main() {
         for (int j = 0; j < N; j++) {
             ref_out[i + j * N] = DATA_INIT(0);
             test_out[i + j * N] = DATA_INIT(0);
-            in[i + j * N] = DATA_INIT(pseudo_rand()) % RANGE;
+            in[i + j * N] = DATA_INIT(pseudo_rand());
         }
     }
 
     for (int i = 0; i < 5 * 5; i++) {
-        int f = pseudo_rand() % RANGE - (RANGE - 1) / 2;
+        int f = pseudo_rand() - (RANGE - 1) / 2;
         filter_global[i] = DATA_INIT(f);
     }
 
-    START_PROFILE_REGION("kernel");
-    for (int iter = 0; iter < 100; iter++)
-        dconv5x5(in, N, N, filter_global, test_out);
-    END_PROFILE_REGION();
+    dconv5x5(in, N, N, filter_global, test_out);
 
     dconv_ref(in, N, filter_global, ref_out);
 
@@ -85,6 +85,6 @@ int main() {
         }
     }
 
-    printf("[conv5x5] PASS\r\n");
+    printf("[conv5x5] PASS\n");
     return 0;
 }

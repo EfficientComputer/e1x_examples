@@ -5,4 +5,4 @@
 
 extern uint8_t src_image[115200];
 
-extern uint8_t* encoded_jpg;
+extern uint8_t *encoded_jpg;
