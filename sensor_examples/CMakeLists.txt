@@ -8,3 +8,4 @@ add_subdirectory(${EFF_SDK_ROOT_DIR} sdk)
 
 add_subdirectory(bme280)
 add_subdirectory(adxl372)
+add_subdirectory(arducam_ov2640)
