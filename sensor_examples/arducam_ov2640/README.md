@@ -2,7 +2,7 @@
 
 OV2640 + ArduChip (SPI FIFO) camera bring-up examples for the E1x EVK.
 
-## Prerequisite
+## Prerequisites
 
 ### I2C driver fix
 
