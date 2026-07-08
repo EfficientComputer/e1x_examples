@@ -2,7 +2,9 @@
 
 OV2640 + ArduChip (SPI FIFO) camera bring-up examples for the E1x EVK.
 
-## Prerequisite: I2C driver fix
+## Prerequisite
+
+### I2C driver fix
 
 The SDK I2C driver optimizes away buffer reads. Before building, add a compiler
 barrier to `~/effcc/sdk/drivers/i2c/i2c.c` in `eff_i2c_read_raw()`:
@@ -15,6 +17,10 @@ __asm__ volatile("" ::: "memory");
 
 return 0;
 ```
+
+### External level shifters
+
+There is a communication issue with the TXB0108 on-board level shifters when interfacing with the ArduChip's SPI interface. We’ve seen the issue go away when using different external level shifters for the SPI interface. We specifically use the 4-channel I2C-safe Bi-directional Logic Level Converter BSS138 level shifters from Adafruit.
 
 ## Bring-up order
 
