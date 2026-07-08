@@ -29,3 +29,4 @@ Example apps demonstrating how to interface various sensor modules with the E1x 
 
 * **adxl372** - ADXL372 High-G Accelerometer
 * **bme280** - BME280 Environmental Sensor (Temperature, Humidity, Pressure)
+* **arducam_ov2640** - Arducam Mini 2MP Plus Camera Module
