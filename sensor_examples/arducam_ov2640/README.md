@@ -20,7 +20,7 @@ return 0;
 
 ### External level shifters
 
-There is a communication issue with the TXB0108 on-board level shifters when interfacing with the ArduChip's SPI interface. We’ve seen the issue go away when using different external level shifters for the SPI interface. We specifically use the 4-channel I2C-safe Bi-directional Logic Level Converter BSS138 level shifters from Adafruit.
+There is a communication issue with the TXB0108 on-board level shifters when interfacing with the ArduChip's SPI interface. We’ve seen the issue go away when using different external level shifters for the SPI interface. We specifically use the [4-channel I2C-safe Bi-directional Logic Level Converter BSS138](https://www.adafruit.com/product/757) level shifters from Adafruit.
 
 ## Wiring
 
