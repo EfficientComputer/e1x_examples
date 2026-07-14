@@ -25,7 +25,7 @@ There is a communication issue with the TXB0108 on-board level shifters when int
 ## Wiring
 
 The examples use EVK **bank 5** for SPI (ArduChip) and **bank 4 / I2C1** for I2C
-(OV2640 sensor, SCCB address `0x30`). Set **SW10 ON** to enable these banks.
+(OV2640 sensor, SCCB address `0x30`).
 
 | Signal | E1x EVK pin | Level shifting | Arducam pin |
 |---|---|---|---|
@@ -33,30 +33,33 @@ The examples use EVK **bank 5** for SPI (ArduChip) and **bank 4 / I2C1** for I2C
 | SPI CS | DIGIO051 (bank 5, pin 1) | external BSS138 | CS |
 | SPI MOSI | DIGIO052 (bank 5, pin 2) | external BSS138 | MOSI |
 | SPI MISO | DIGIO053 (bank 5, pin 3) | external BSS138 | MISO |
-| I2C SCL | DIGIO042 (bank 4, pin 2, I2C1) | — | SCL |
-| I2C SDA | DIGIO043 (bank 4, pin 3, I2C1) | — | SDA |
-| 3.3 V | — | — | VCC |
+| I2C SCL | DIGIO042 (bank 4, pin 2, I2C1) | external BSS138 | SCL |
+| I2C SDA | DIGIO043 (bank 4, pin 3, I2C1) | external BSS138 | SDA |
+| 3.3 V | 3V3 | — | VCC |
 | GND | GND | — | GND |
 
 ```
-E1x EVK (1.8 V IO)            BSS138 level shifter         Arducam Mini 2MP Plus
-                              LV = 1.8 V   HV = 3.3 V
+E1x EVK (1.8 V IO)            BSS138 level shifter 1        Arducam Mini 2MP Plus
+                              LV = 1.8 V      HV = 3.3 V
 DIGIO050 (SPI CLK)  ────────▶ LV1 ─────────── HV1 ────────▶ SCK
 DIGIO051 (SPI CS)   ────────▶ LV2 ─────────── HV2 ────────▶ CS
 DIGIO052 (SPI MOSI) ────────▶ LV3 ─────────── HV3 ────────▶ MOSI
 DIGIO053 (SPI MISO) ◀──────── LV4 ─────────── HV4 ◀──────── MISO
 
-DIGIO042 (I2C1 SCL) ◀───────────────────────────────────▶ SCL
-DIGIO043 (I2C1 SDA) ◀───────────────────────────────────▶ SDA
+                              BSS138 level shifter 2
+                              LV = 1.8 V      HV = 3.3 V
+DIGIO042 (I2C1 SCL) ◀───────▶ LV1 ─────────── HV1 ◀───────▶ SCL
+DIGIO043 (I2C1 SDA) ◀───────▶ LV2 ─────────── HV2 ◀───────▶ SDA
 
 3.3 V ──▶ VCC (camera) and BSS138 HV;  1.8 V ──▶ BSS138 LV;  common GND
 ```
 
 Notes:
 
-- Only the four SPI lines need the external BSS138 shifters (see
+- The four SPI lines need the external BSS138 shifters (see
   [External level shifters](#external-level-shifters) above); I2C works through
-  the EVK's standard on-board level shifting.
+  the EVK's standard on-board level shifting, but we also level shift it via the
+  external BSS138 level shifters in this example.
 - SPI is mode 0, clocked at ~4.17 MHz (`clk_div = 5`), under the ArduChip's
   8 MHz max. I2C runs at 100 kHz.
 - The E1x's digital IO is 1.8 V logic — never drive the EVK pins directly with
