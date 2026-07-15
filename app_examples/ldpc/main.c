@@ -1,10 +1,15 @@
+#ifdef __EFFCC__
 #include <eff.h>
+#endif
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "ldpc.h"
+
+#define NUM_ITERATIONS 1
 
 #define MESSAGE_SIZE 336
 #define CODEWORD_SIZE 672
@@ -42,13 +47,19 @@ int _test_codeword_decision[CODEWORD_SIZE];
 int _mLv2c[PARITY_NNZ];
 int _mLc2v[PARITY_NNZ];
 
+#ifdef EFF_BLD_HAND_OPTIMIZED
 int _F[CODEWORD_SIZE * MAX_CHECK_NODE_NNZ];
 int _B[CODEWORD_SIZE * MAX_CHECK_NODE_NNZ];
+#else
+int _F[CODEWORD_SIZE];
+int _B[CODEWORD_SIZE];
+#endif
 
 int _codeword_llrs_acc[CODEWORD_SIZE];
 int _syndrome[MESSAGE_SIZE];
 
-int test() {
+int test()
+{
     int decoder_max_iterations = 16;
     bool decoder_early_term_possible = true;
 
@@ -78,7 +89,8 @@ int test() {
     _test_message[9] = 1;
     _test_message[10] = 1;
 
-    for (int i = 0; i < 70; ++i) {
+    for (int i = 0; i < 70; ++i)
+    {
         _test_message[10 + i * 2] = 1;
     }
 
@@ -86,7 +98,8 @@ int test() {
     encode(&generator_col_csr, _test_message, _test_codeword, CODEWORD_SIZE);
 
     // initialize test message llrs
-    for (int i = 0; i < CODEWORD_SIZE; ++i) {
+    for (int i = 0; i < CODEWORD_SIZE; ++i)
+    {
         // just set the LLRs to -1 or 1 to start
         _test_codeword_llrs[i] = _test_codeword[i] ? -1000 : 1000;
     }
@@ -99,7 +112,8 @@ int test() {
 
     // bit flips
     _test_codeword_llrs[11] = -_test_codeword_llrs[11];
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 10; ++i)
+    {
         _test_codeword_llrs[15 + i * 40] = -_test_codeword_llrs[15 + i * 40];
     }
 
@@ -121,13 +135,19 @@ int test() {
     tmp.syndrome = _syndrome;
 
     // decode the test llrs
-    int num_iters = decode(&parity_matrix, &tmp, _test_codeword_llrs,
+    int num_iters = 0;
+    for (int iter = 0; iter < NUM_ITERATIONS; iter++)
+    {
+        num_iters = decode(&parity_matrix, &tmp, _test_codeword_llrs,
                            _test_codeword_decision, MESSAGE_SIZE, CODEWORD_SIZE,
                            MAX_CHECK_NODE_NNZ, decoder_max_iterations,
                            decoder_early_term_possible);
+    }
 
-    for (int i = 0; i < CODEWORD_SIZE; ++i) {
-        if (_test_codeword_decision[i] != _test_codeword[i]) {
+    for (int i = 0; i < CODEWORD_SIZE; ++i)
+    {
+        if (_test_codeword_decision[i] != _test_codeword[i])
+        {
             printf("[ldpc] FAIL\r\n");
             return 1;
         }
@@ -138,7 +158,8 @@ int test() {
     return 0;
 }
 
-int main() {
+int main()
+{
     test();
     return 0;
 }

@@ -2,16 +2,18 @@
 
 #define likely(x) __builtin_expect(!!(x), 1)
 
-__efficient__
-void dconv5x5_fabric(const data_t *in_row_zero, data_t *out_row_neg5,
-                    int n, int tile_rows_plus_4,
-                    data_t f00, data_t f10, data_t f20, data_t f30, data_t f40,
-                    data_t f01, data_t f11, data_t f21, data_t f31, data_t f41,
-                    data_t f02, data_t f12, data_t f22, data_t f32, data_t f42,
-                    data_t f03, data_t f13, data_t f23, data_t f33, data_t f43,
-                    data_t f04, data_t f14, data_t f24, data_t f34, data_t f44) {
+#ifdef EFF_BLD_HAND_OPTIMIZED
+__efficient__ void dconv5x5_fabric(const data_t *in_row_zero, data_t *out_row_neg5,
+                                   int n, int tile_rows_plus_4,
+                                   data_t f00, data_t f10, data_t f20, data_t f30, data_t f40,
+                                   data_t f01, data_t f11, data_t f21, data_t f31, data_t f41,
+                                   data_t f02, data_t f12, data_t f22, data_t f32, data_t f42,
+                                   data_t f03, data_t f13, data_t f23, data_t f33, data_t f43,
+                                   data_t f04, data_t f14, data_t f24, data_t f34, data_t f44)
+{
 
-    for (int col = 0; col <= n - 5; col++) {
+    for (int col = 0; col <= n - 5; col++)
+    {
         data_t in00 = DATA_ZERO, in10 = DATA_ZERO, in20 = DATA_ZERO,
                in30 = DATA_ZERO, in40 = DATA_ZERO;
         data_t in01 = DATA_ZERO, in11 = DATA_ZERO, in21 = DATA_ZERO,
@@ -24,7 +26,8 @@ void dconv5x5_fabric(const data_t *in_row_zero, data_t *out_row_neg5,
         const data_t *in = in_row_zero;
         data_t *out = out_row_neg5;
 
-        for (int row = 0; row < tile_rows_plus_4; row++) {
+        for (int row = 0; row < tile_rows_plus_4; row++)
+        {
             data_t in04 = in[0];
             data_t in14 = in[1];
             data_t in24 = in[2];
@@ -45,11 +48,11 @@ void dconv5x5_fabric(const data_t *in_row_zero, data_t *out_row_neg5,
             val +=
                 in04 * f04 + in14 * f14 + in24 * f24 + in34 * f34 + in44 * f44;
 
-
             // By only gating only the store (vs the calculation for val)
             // we save a whole bunch of steer gates.
             // It is left to the future to gate the computation of val.
-            if (likely(row >= 4)) {
+            if (likely(row >= 4))
+            {
                 *out = val;
             }
 
@@ -85,8 +88,9 @@ void dconv5x5_fabric(const data_t *in_row_zero, data_t *out_row_neg5,
 }
 
 void dconv5x5_internal(const data_t *in_row_zero, data_t *out_row_neg5,
-                                int n, int tile_rows_plus_4,
-                                const data_t *pfilter) {
+                       int n, int tile_rows_plus_4,
+                       const data_t *pfilter)
+{
     data_t f00 = pfilter[0];
     data_t f10 = pfilter[1];
     data_t f20 = pfilter[2];
@@ -120,7 +124,41 @@ void dconv5x5_internal(const data_t *in_row_zero, data_t *out_row_neg5,
                     f03, f13, f23, f33, f43,
                     f04, f14, f24, f34, f44);
 }
+#else
 
-void dconv5x5(const data_t *in, int m, int n, const data_t *filter, data_t *out) {
-    dconv5x5_internal(in, out - 5*n, n, n + 4, filter);
+__efficient__ void dconv5x5_internal(const data_t *in, int m, int n,
+                                     const data_t *filter, data_t *out)
+{
+    const int d = 5;
+    for (int i = 0; i <= m - d; i++)
+    {
+        for (int j = 0; j <= n - d; j++)
+        {
+            data_t sum = DATA_INIT(0);
+
+            for (int fi = 0; fi < d; fi++)
+            {
+                for (int fj = 0; fj < d; fj++)
+                {
+                    int col = i + fi;
+                    int row = j + fj;
+
+                    sum += filter[fi + fj * d] * in[col + row * n];
+                }
+            }
+
+            out[i + j * n] = sum;
+        }
+    }
+}
+
+#endif
+
+void dconv5x5(const data_t *in, int m, int n, const data_t *filter, data_t *out)
+{
+#ifdef EFF_BLD_HAND_OPTIMIZED
+    dconv5x5_internal(in, out - 5 * n, n, n + 4, filter);
+#else
+    dconv5x5_internal(in, m, n, filter, out);
+#endif
 }

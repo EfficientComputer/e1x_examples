@@ -1,4 +1,6 @@
+#ifdef __EFFCC__
 #include <eff.h>
+#endif
 
 #include "fft.h"
 
@@ -12,13 +14,14 @@
 extern const int twiddleSchedule[6];
 extern const int16_t twiddles[10920];
 
-__efficient__
-void fft_init_dst(fft_cpx *dst, fft_cpx *src,
-                                    int size) {
+__efficient__ void fft_init_dst(fft_cpx *dst, fft_cpx *src,
+                                int size)
+{
     // Computing log2(size)
     uint32_t log2Size = -1;
     uint32_t sizeShift = size;
-    while (sizeShift) {
+    while (sizeShift)
+    {
         sizeShift >>= 1;
         log2Size++;
     }
@@ -26,59 +29,61 @@ void fft_init_dst(fft_cpx *dst, fft_cpx *src,
     int highShiftAmt = 32 - log2Size + 1;
     int lowShiftAmt = 32 - log2Size - 1;
 
-    __effcc_parallel(16)
-    for (int i = 0; i < size; i++) {
-            // Reversing bits of dstIdx (i)
-            uint32_t reversed = __builtin_elementwise_bitreverse(i);
+    __effcc_parallel(16) for (int i = 0; i < size; i++)
+    {
+        // Reversing bits of dstIdx (i)
+        uint32_t reversed = __builtin_elementwise_bitreverse(i);
 
-            // Swapping each pair of bits
-            uint32_t reversedA = reversed & 0xAAAAAAAA;
-            uint32_t reversedB = reversed & 0x55555555;
+        // Swapping each pair of bits
+        uint32_t reversedA = reversed & 0xAAAAAAAA;
+        uint32_t reversedB = reversed & 0x55555555;
 
-            reversedA = reversedA >> highShiftAmt;
-            reversedB = reversedB >> lowShiftAmt;
+        reversedA = reversedA >> highShiftAmt;
+        reversedB = reversedB >> lowShiftAmt;
 
-            uint32_t srcIdx = reversedA | reversedB;
+        uint32_t srcIdx = reversedA | reversedB;
 
-            dst[i] = src[srcIdx];
-        }
+        dst[i] = src[srcIdx];
+    }
 }
 
-__efficient__ 
-void kiss_fft_run_layer(fft_cpx* data, int twiddleStart,
-                                   int idxStride, int scheduleLen) {
-    for (int i = 0; i < scheduleLen; i++) {
-        uint32_t* Fout = (uint32_t*)(data + (i * idxStride));
+__efficient__ void kiss_fft_run_layer(fft_cpx *data, int twiddleStart,
+                                      int idxStride, int scheduleLen)
+{
+    for (int i = 0; i < scheduleLen; i++)
+    {
+        uint32_t *Fout = (uint32_t *)(data + (i * idxStride));
         uint32_t m = idxStride / 4;
 
         uint32_t *tw1, *tw2, *tw3;
         uint32_t m2 = m + m;
         uint32_t m3 = m2 + m;
 
-        tw3 = tw2 = tw1 = (uint32_t*)(twiddles + twiddleStart * 2);
+        tw3 = tw2 = tw1 = (uint32_t *)(twiddles + twiddleStart * 2);
 
-        for (int32_t k = m; k > 0; k--) {
+        for (int32_t k = m; k > 0; k--)
+        {
             // Equivalent to *Fout / 4;
             uint32_t Fout0 = Fout[0];
             int16_t Fout0r = (int16_t)(Fout0 & 0xFFFF);
             int16_t Fout0i = (int16_t)(Fout0 >> 16);
             int32_t fOut0r = FIXED_ROUND((int32_t)(Fout0r * (SAMP_MAX / 4)));
             int32_t fOut0i = FIXED_ROUND((int32_t)(Fout0i * (SAMP_MAX / 4)));
-            
+
             // Equivalent to Fout[m] / 4;
             uint32_t Fout1 = Fout[m];
             int16_t Fout1r = (int16_t)(Fout1 & 0xFFFF);
             int16_t Fout1i = (int16_t)(Fout1 >> 16);
             int32_t fOut1r = FIXED_ROUND((int32_t)(Fout1r * (SAMP_MAX / 4)));
             int32_t fOut1i = FIXED_ROUND((int32_t)(Fout1i * (SAMP_MAX / 4)));
-            
+
             // Equivalent to Fout[m2] / 4;
             uint32_t Fout2 = Fout[m2];
             int16_t Fout2r = (int16_t)(Fout2 & 0xFFFF);
             int16_t Fout2i = (int16_t)(Fout2 >> 16);
             int32_t fOut2r = FIXED_ROUND((int32_t)(Fout2r * (SAMP_MAX / 4)));
             int32_t fOut2i = FIXED_ROUND((int32_t)(Fout2i * (SAMP_MAX / 4)));
-            
+
             // Equivalent to Fout[m3] / 4;
             uint32_t Fout3 = Fout[m3];
             int16_t Fout3r = (int16_t)(Fout3 & 0xFFFF);
@@ -156,12 +161,14 @@ void kiss_fft_run_layer(fft_cpx* data, int twiddleStart,
     }
 }
 
-void fft(fft_cpx* src, fft_cpx* dst, uint16_t dst_size) {
+void fft(fft_cpx *src, fft_cpx *dst, uint16_t dst_size)
+{
     fft_init_dst(dst, src, dst_size);
 
     int i = 0;
     int maxStride = dst_size;
-    for (int m = 1; m < maxStride; m *= 4) {
+    for (int m = 1; m < maxStride; m *= 4)
+    {
         int scheduleLen = maxStride / (m * 4);
         kiss_fft_run_layer(dst, twiddleSchedule[i], m * 4, scheduleLen);
         i++;

@@ -1,17 +1,22 @@
+#ifdef __EFFCC__
+#include <eff.h>
+#endif
+
 #include <stdlib.h>
 #include <stdint.h>
-#include <eff.h>
 
 #define TILE_SIZE_X 4
 #define TILE_SIZE_Y 4
 
-__efficient__ 
-void transpose_reformat(const int32_t *restrict input,
+#ifdef EFF_BLD_HAND_OPTIMIZED
+__efficient__ void transpose_reformat(const int32_t *restrict input,
                                       int32_t *restrict output, uint32_t rows,
-                                      uint32_t cols) {
-    for (int y = 0; y < rows; y += 4) {
-        __effcc_parallel(2)
-        for (int x = 0; x < cols; x++) {
+                                      uint32_t cols)
+{
+    for (int y = 0; y < rows; y += 4)
+    {
+        __effcc_parallel(2) for (int x = 0; x < cols; x++)
+        {
             output[y * cols + x * 4] = input[x * cols + y];
             output[y * cols + x * 4 + 1] = input[x * cols + (y + 1)];
             output[y * cols + x * 4 + 2] = input[x * cols + (y + 2)];
@@ -20,12 +25,13 @@ void transpose_reformat(const int32_t *restrict input,
     }
 }
 
-__efficient__
-void reformat(const int32_t *input, int32_t *output,
-                            uint32_t rows, uint32_t cols) {
-    for (int y = 0; y < rows; y += 4) {
-        __effcc_parallel(2)
-        for (int x = 0; x < cols; x++) {
+__efficient__ void reformat(const int32_t *input, int32_t *output,
+                            uint32_t rows, uint32_t cols)
+{
+    for (int y = 0; y < rows; y += 4)
+    {
+        __effcc_parallel(2) for (int x = 0; x < cols; x++)
+        {
             output[y * cols + x * 4] = input[y * cols + x];
             output[y * cols + x * 4 + 1] = input[(y + 1) * cols + x];
             output[y * cols + x * 4 + 2] = input[(y + 2) * cols + x];
@@ -34,24 +40,26 @@ void reformat(const int32_t *input, int32_t *output,
     }
 }
 
-__efficient__
-void dmm_helper(const int32_t* a,
-                int32_t* b,
-                int32_t* z,
-                uint32_t hiddenLen,
-                uint32_t outRows,
-                uint32_t outCols) {
+__efficient__ void dmm_helper(const int32_t *a,
+                              int32_t *b,
+                              int32_t *z,
+                              uint32_t hiddenLen,
+                              uint32_t outRows,
+                              uint32_t outCols)
+{
 
-    for (int tr = 0; outRows > tr; tr += TILE_SIZE_Y) {
-        for (int tc = 0; outCols > tc; tc += TILE_SIZE_X) {
+    for (int tr = 0; outRows > tr; tr += TILE_SIZE_Y)
+    {
+        for (int tc = 0; outCols > tc; tc += TILE_SIZE_X)
+        {
 
             int32_t sum00 = 0, sum01 = 0, sum02 = 0, sum03 = 0,
                     sum10 = 0, sum11 = 0, sum12 = 0, sum13 = 0,
                     sum20 = 0, sum21 = 0, sum22 = 0, sum23 = 0,
                     sum30 = 0, sum31 = 0, sum32 = 0, sum33 = 0;
 
-            __effcc_parallel(1)
-            for (int i = 0; hiddenLen > i; i++) {
+            __effcc_parallel(1) for (int i = 0; hiddenLen > i; i++)
+            {
                 int trHidden = tr * hiddenLen;
                 int fourI = i * 4;
                 int32_t a0 = a[trHidden + fourI];
@@ -109,50 +117,56 @@ void dmm_helper(const int32_t* a,
     }
 }
 
-int32_t* dmmTemp = NULL;
+int32_t *dmmTemp = NULL;
 uint32_t tempSize = 0;
 
-void dmm(const int32_t* a, // m x k
-         const int32_t* b, // k x n
-         int32_t *z, // m x n
-         uint32_t m, uint32_t k, uint32_t n) {
+void dmm(const int32_t *a, // m x k
+         const int32_t *b, // k x n
+         int32_t *z,       // m x n
+         uint32_t m, uint32_t k, uint32_t n)
+{
 
     uint32_t aPrimeSize = m * k;
     uint32_t bTransposeSize = k * n;
 
     uint32_t reqTempSize = (aPrimeSize + bTransposeSize) * sizeof(int32_t);
 
-    if (dmmTemp == NULL || tempSize < reqTempSize) {
-        if (!dmmTemp) {
+    if (dmmTemp == NULL || tempSize < reqTempSize)
+    {
+        if (!dmmTemp)
+        {
             free(dmmTemp);
         }
 
-        dmmTemp = (int32_t*)malloc(reqTempSize);
+        dmmTemp = (int32_t *)malloc(reqTempSize);
         tempSize = reqTempSize;
     }
 
     transpose_reformat(b, dmmTemp, k, n);
 
-    int32_t* aPrime = dmmTemp + bTransposeSize;
+    int32_t *aPrime = dmmTemp + bTransposeSize;
     reformat(a, aPrime, m, k);
 
     dmm_helper(aPrime, dmmTemp, z, k, m, n);
 }
-
-__efficient__
-void dmm_reference(const int32_t *a,  // n x m
-                   const int32_t *b,  // m x o
-                   int32_t *z,        // n x o
-                   uint32_t n, uint32_t m, uint32_t o) {
-    for (uint32_t i = 0; i < n; i++) {
-        for (uint32_t k = 0; k < o; k++) {
-            int32_t sum0 = 0, sum1 = 0, sum2 = 0, sum3 = 0;
-            for (uint32_t j = 0; j < m; j++) {
-                sum0 += a[i * n + j] * b[j * m + (k + 0)];
+#else
+__efficient__ void dmm(const int32_t *a, // n x m
+                       const int32_t *b, // m x o
+                       int32_t *z,       // n x o
+                       uint32_t n, uint32_t m, uint32_t o)
+{
+    for (uint32_t i = 0; i < n; i++)
+    {
+        for (uint32_t k = 0; k < o; k++)
+        {
+            int32_t sum = 0;
+            for (uint32_t j = 0; j < m; j++)
+            {
+                sum += a[i * n + j] * b[j * m + (k + 0)];
             }
 
-            z[i * n + (k + 0)] = sum0;
+            z[i * n + (k + 0)] = sum;
         }
     }
 }
-
+#endif
