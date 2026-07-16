@@ -1,12 +1,13 @@
 # Cholesky Decomposition (Cholesky)
 
-This example computes a **Cholesky decomposition** of a symmetric positive-definite matrix on the Electron E1 general-purpose processor, using fixed-point arithmetic. It factors a matrix `A` into a lower-triangular matrix `L` such that `A = L * L^T`. It is a compact linear-algebra kernel used to show how a triangular, dependency-carrying computation maps onto the Fabric architecture.
+This example computes a **Cholesky decomposition** of a symmetric positive-definite matrix on the Electron E1x general-purpose processor, using fixed-point arithmetic. It factors a matrix `A` into a lower-triangular matrix `L` such that `A = L * L^T`. It is a compact linear-algebra kernel used to show how a triangular, dependency-carrying computation maps onto the Fabric architecture.
 
 ---
 
 ## 1. Overview
 
 ### What is a Cholesky Decomposition?
+
 A Cholesky decomposition takes a symmetric positive-definite matrix `A` and factors it into a lower-triangular matrix `L` and its transpose `L^T`, so that `A = L * L^T`. It is the standard, efficient way to factor such a matrix, using about half the work of a general LU decomposition because it exploits the symmetry.
 
 This example works in fixed-point arithmetic: real values are represented as integers scaled by a fixed number of fractional bits, and each multiply is rescaled to keep the result in the same format. Fixed-point avoids the cost of floating-point hardware, which suits energy-constrained devices.
@@ -20,6 +21,7 @@ For a symmetric positive-definite matrix `A`, the decomposition produces a lower
     L[i][j] = ( A[i][j] - Σ L[i][k] * L[j][k] ) / L[j][j]     for i > j, k = 0 .. j-1
 
 Where:
+
 - `A` is the symmetric positive-definite input matrix (`n x n`)
 - `L` is the lower-triangular output, satisfying `A = L * L^T`
 
@@ -42,7 +44,7 @@ Because it mixes reductions, a square root, and a division with strong dependenc
 
 ## 3. Why EFF Hardware Performs Well
 
-The Electron E1 runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
+The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
 This fits fixed-point Cholesky decomposition well:
 
@@ -59,8 +61,8 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 These definitions in `main.c` and `cholesky.h` control the benchmark. Change them to resize the problem or re-run it.
 
-| Definition | Default | Effect |
-|---|---|---|
-| `NUM_ITERATIONS` | `1` | How many times the kernel runs. Increase it to average out measurement noise when benchmarking. |
-| `INPUT_SIZE` | `32` | The matrix dimension `n` (the input is `n x n`). This sets the problem size: a larger value means a larger matrix and more work per run. The input is generated in `main.c` and made symmetric positive-definite before the kernel runs. |
-| `FIXED_POINT_BITS` | `10` | The number of fractional bits in the fixed-point format, defined in `cholesky.h`. It sets the trade-off between numeric range and precision. Changing it changes the scaling used throughout the kernel. |
+| Definition         | Default | Effect                                                                                                                                                                                                                                   |
+| ------------------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NUM_ITERATIONS`   | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                                          |
+| `INPUT_SIZE`       | `32`    | The matrix dimension `n` (the input is `n x n`). This sets the problem size: a larger value means a larger matrix and more work per run. The input is generated in `main.c` and made symmetric positive-definite before the kernel runs. |
+| `FIXED_POINT_BITS` | `10`    | The number of fractional bits in the fixed-point format, defined in `cholesky.h`. It sets the trade-off between numeric range and precision. Changing it changes the scaling used throughout the kernel.                                 |

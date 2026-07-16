@@ -1,12 +1,13 @@
 # Dense Matrix-Vector Multiply (DMV)
 
-This example computes a **dense matrix-vector product** (`z = A · b`) on the Electron E1 general-purpose processor. It is a compact, compute-dense linear-algebra kernel used to show how regular arithmetic maps onto the Fabric architecture.
+This example computes a **dense matrix-vector product** (`z = A · b`) on the Electron E1x general-purpose processor. It is a compact, compute-dense linear-algebra kernel used to show how regular arithmetic maps onto the Fabric architecture.
 
 ---
 
 ## 1. Overview
 
 ### What is a Dense Matrix-Vector Multiply?
+
 A dense matrix-vector multiply takes an `n × m` matrix `A` and an `m`-element vector `b` and produces an `n`-element vector `z`. Every element of the output is the dot product of one row of `A` with the vector `b`. "Dense" means every element is stored and processed (there is no sparsity to skip over).
 
 ### Mathematical Definition
@@ -14,6 +15,7 @@ A dense matrix-vector multiply takes an `n × m` matrix `A` and an `m`-element v
     z[i] = Σ A[i][j] * b[j]     for j = 0 .. m-1
 
 Where:
+
 - `A` is the input matrix (`n` rows, `m` columns, row-major)
 - `b` is the input vector (`m` elements)
 - `z` is the output vector (`n` elements)
@@ -37,7 +39,7 @@ Because it is memory-bound at large sizes and arithmetic-bound at small sizes, i
 
 ## 3. Why EFF Hardware Performs Well
 
-The Electron E1 runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
+The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
 This fits dense matrix-vector multiply well:
 
@@ -54,7 +56,7 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 These definitions in `main.c` (and the shared matrix header it includes) control the benchmark. Change them to resize the problem or re-run it.
 
-| Definition | Default | Effect |
-|---|---|---|
-| `NUM_ITERATIONS` | `1` | How many times the kernel runs. Increase it to average out measurement noise when benchmarking. |
-| `MAT_REF_SIZE` | `32` | The matrix dimension (both `n` and `m`), defined in the shared `mat.h`. This sets the problem size: a larger value means a larger matrix and vector and more MACs per run. The input matrix `mat_a` and `vector` are supplied from `mat.h`. |
+| Definition       | Default | Effect                                                                                                                                                                                                                                      |
+| ---------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                                             |
+| `MAT_REF_SIZE`   | `32`    | The matrix dimension (both `n` and `m`), defined in the shared `mat.h`. This sets the problem size: a larger value means a larger matrix and vector and more MACs per run. The input matrix `mat_a` and `vector` are supplied from `mat.h`. |

@@ -1,12 +1,13 @@
 # 3x3 Convolution (Conv3x3)
 
-This example computes a **single-channel 3x3 2D convolution** on the Electron E1 general-purpose processor. It slides a 3x3 filter over a 2D input image and produces one output value per position, a core building block of image and signal processing.
+This example computes a **single-channel 3x3 2D convolution** on the Electron E1x general-purpose processor. It slides a 3x3 filter over a 2D input image and produces one output value per position, a core building block of image and signal processing.
 
 ---
 
 ## 1. Overview
 
 ### What is a 3x3 convolution?
+
 A 3x3 convolution slides a small 3x3 filter (also called a kernel) across a 2D input image. At every position, it multiplies the nine overlapping input values by the nine filter weights and sums the results into a single output value. The filter then shifts by one column and repeats, so neighboring outputs share most of their input values. This example is single-channel: it works on one 2D plane of data with one 3x3 filter.
 
 ### Mathematical Definition
@@ -14,6 +15,7 @@ A 3x3 convolution slides a small 3x3 filter (also called a kernel) across a 2D i
     O(x, y) = Σ_i Σ_j I(x + i, y + j) * K(i, j)     for i, j = 0 .. 2
 
 Where:
+
 - `I` is the input image
 - `K` is the 3x3 filter (nine weights)
 - `O` is the output image
@@ -37,7 +39,7 @@ Because the same small filter is applied everywhere and neighboring windows over
 
 ## 3. Why EFF Hardware Performs Well
 
-The Electron E1 runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
+The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
 This fits 3x3 convolution well:
 
@@ -55,10 +57,10 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 These definitions in `main.c` and the app's `conv3x3.h` header control the benchmark. Change them to resize the problem or re-run it.
 
-| Definition | Default | Effect |
-|---|---|---|
-| `NUM_ITERATIONS` | `1` | How many times the kernel runs. Increase it to average out measurement noise when benchmarking. |
-| `M` | `64` | The number of input rows (image height). Larger values mean a larger image and more output positions. |
-| `N` | `64` | The number of input columns (image width). Larger values mean a larger image and more output positions. |
-| `INSTRIDE` | `N` | The row stride of the input buffer in elements. It sets how far apart successive input rows are in memory. |
-| `OUTSTRIDE` | `N` | The row stride of the output buffer in elements. It sets how far apart successive output rows are in memory. |
+| Definition       | Default | Effect                                                                                                       |
+| ---------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
+| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.              |
+| `M`              | `64`    | The number of input rows (image height). Larger values mean a larger image and more output positions.        |
+| `N`              | `64`    | The number of input columns (image width). Larger values mean a larger image and more output positions.      |
+| `INSTRIDE`       | `N`     | The row stride of the input buffer in elements. It sets how far apart successive input rows are in memory.   |
+| `OUTSTRIDE`      | `N`     | The row stride of the output buffer in elements. It sets how far apart successive output rows are in memory. |

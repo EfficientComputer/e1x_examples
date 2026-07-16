@@ -1,12 +1,13 @@
 # Recursive Factorial (Factorial)
 
-This example computes a **factorial** using recursion on the Electron E1 general-purpose processor. It multiplies down through the integers from `n` to 1, showing how a recursive kernel maps onto the Fabric architecture.
+This example computes a **factorial** using recursion on the Electron E1x general-purpose processor. It multiplies down through the integers from `n` to 1, showing how a recursive kernel maps onto the Fabric architecture.
 
 ---
 
 ## 1. Overview
 
 ### What is a factorial?
+
 The factorial of a non-negative integer `n`, written `n!`, is the product of all the positive integers from 1 up to `n`. For example, `10!` is `10 * 9 * 8 * ... * 1`, which equals 3628800. Factorials grow very quickly and appear throughout counting problems, probability, and series expansions.
 
 This implementation is recursive: it multiplies the running result by `n`, then calls itself on `n - 1`, stopping when `n` reaches 0. The kernel therefore exercises recursion and a chain of dependent multiplications.
@@ -40,7 +41,7 @@ As a benchmark it is a compact way to exercise recursion and a chain of dependen
 
 ## 3. Why EFF Hardware Performs Well
 
-The Electron E1 runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
+The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
 The factorial is a sequence of dependent multiplications driven by recursion, and that pattern maps well onto the Fabric:
 
@@ -57,9 +58,9 @@ The result is efficient evaluation of a recursive integer computation at low ene
 
 These definitions in `main.c` control the benchmark. Change them to re-run it.
 
-| Definition | Default | Effect |
-|---|---|---|
-| `NUM_ITERATIONS` | `1` | How many times the kernel runs. Increase it to average out measurement noise when benchmarking. |
+| Definition        | Default   | Effect                                                                                                                                                                                 |
+| ----------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NUM_ITERATIONS`  | `1`       | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                        |
 | `EXPECTED_OUTPUT` | `3628800` | The expected result the output is compared against for the pass/fail print. This is the value of `10!`. If you change the input, this must be updated to match the new correct result. |
 
 The factorial argument is a hardcoded literal in `main.c` (the variable `n` is set to `10`). You can edit this literal to compute a different factorial, but if you do, update `EXPECTED_OUTPUT` to match the new correct result. Note that factorials grow quickly, so large arguments will overflow the 32-bit integer result.

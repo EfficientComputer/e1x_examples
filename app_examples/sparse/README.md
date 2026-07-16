@@ -1,12 +1,13 @@
 # Sparse Vector Operations (SVec)
 
-This example performs **operations on sparse vectors** on the Electron E1 general-purpose processor. Each vector is stored as coordinate-value pairs, listing only its nonzero entries. The core operation is a stream-join multiply of two sparse vectors, which is also the basis of a sparse dot product. It shows how irregular, data-dependent access maps onto the Fabric architecture.
+This example performs **operations on sparse vectors** on the Electron E1x general-purpose processor. Each vector is stored as coordinate-value pairs, listing only its nonzero entries. The core operation is a stream-join multiply of two sparse vectors, which is also the basis of a sparse dot product. It shows how irregular, data-dependent access maps onto the Fabric architecture.
 
 ---
 
 ## 1. Overview
 
 ### What is a Sparse Vector Operation?
+
 A sparse vector stores only its nonzero entries, each as a coordinate (its position) and a value. Two sparse vectors are combined by walking both coordinate lists together and acting only where their coordinates match. The stream-join multiply produces a new sparse vector whose entries are the products at the shared coordinates. Summing those products gives the sparse dot product of the two vectors.
 
 The example supports two ways of holding the vectors. A fixed representation uses statically sized arrays with hand-picked contents so the result can be checked against a known answer. A dynamic representation allocates the vectors and fills them with random nonzeros. The default build uses the fixed representation.
@@ -40,7 +41,7 @@ Because it is bound by irregular access and the data-dependent matching of two s
 
 ## 3. Why EFF Hardware Performs Well
 
-The Electron E1 runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
+The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
 This kernel is dominated by irregular, indirect memory access and data-dependent control flow, which is exactly where a dataflow mapping helps by overlapping index chasing with arithmetic:
 
@@ -57,14 +58,14 @@ The result is high throughput on irregular data at low energy, which is the metr
 
 These definitions in `svec.h` and `main.c` control the benchmark. Change them to resize the problem or switch the vector representation.
 
-| Definition | Default | Effect |
-|---|---|---|
-| `SVEC_FIXED_VEC` | defined | Uses the fixed, hand-picked input vectors so the result can be checked against a known answer. |
-| `SVEC_DYNAMIC` | undefined | When defined, allocates the vectors dynamically instead of using the static arrays. Leave undefined to use the static representation. |
-| `SVEC_MAX_NNZS` | `100` | The maximum number of nonzero entries a vector can hold. Sets the size of the static coordinate and value arrays. |
-| `MAX_VEC_NNZS` | `100` | The nonzero cap used when filling a random vector. Set equal to `SVEC_MAX_NNZS`. |
-| `MAX_COORD` | `100` | The largest coordinate a random vector can use, that is, the effective length of the vector space. |
-| `NNZ_LIKELIHOOD` | `8` | For random vectors, the probability that any given coordinate is nonzero is 1 / `NNZ_LIKELIHOOD`. A larger value makes the vectors sparser. |
-| `V1LEN` | `7` | Number of nonzeros in the first fixed input vector. |
-| `V2LEN` | `11` | Number of nonzeros in the second fixed input vector. |
-| `RESLEN` | `2` | Number of nonzeros in the expected result. With `SVEC_FIXED_VEC`, the output is checked against `res_index` and `res_val`. If you change the fixed inputs, these expected values and `RESLEN` must be updated to match the new correct result. |
+| Definition       | Default   | Effect                                                                                                                                                                                                                                         |
+| ---------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SVEC_FIXED_VEC` | defined   | Uses the fixed, hand-picked input vectors so the result can be checked against a known answer.                                                                                                                                                 |
+| `SVEC_DYNAMIC`   | undefined | When defined, allocates the vectors dynamically instead of using the static arrays. Leave undefined to use the static representation.                                                                                                          |
+| `SVEC_MAX_NNZS`  | `100`     | The maximum number of nonzero entries a vector can hold. Sets the size of the static coordinate and value arrays.                                                                                                                              |
+| `MAX_VEC_NNZS`   | `100`     | The nonzero cap used when filling a random vector. Set equal to `SVEC_MAX_NNZS`.                                                                                                                                                               |
+| `MAX_COORD`      | `100`     | The largest coordinate a random vector can use, that is, the effective length of the vector space.                                                                                                                                             |
+| `NNZ_LIKELIHOOD` | `8`       | For random vectors, the probability that any given coordinate is nonzero is 1 / `NNZ_LIKELIHOOD`. A larger value makes the vectors sparser.                                                                                                    |
+| `V1LEN`          | `7`       | Number of nonzeros in the first fixed input vector.                                                                                                                                                                                            |
+| `V2LEN`          | `11`      | Number of nonzeros in the second fixed input vector.                                                                                                                                                                                           |
+| `RESLEN`         | `2`       | Number of nonzeros in the expected result. With `SVEC_FIXED_VEC`, the output is checked against `res_index` and `res_val`. If you change the fixed inputs, these expected values and `RESLEN` must be updated to match the new correct result. |

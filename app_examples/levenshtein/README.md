@@ -1,12 +1,13 @@
 # Levenshtein Edit Distance (Levenshtein)
 
-This example computes the **Levenshtein edit distance** between two strings on the Electron E1 general-purpose processor. It measures how many single-character edits separate the strings, showing how a table-filling dynamic program maps onto the Fabric architecture.
+This example computes the **Levenshtein edit distance** between two strings on the Electron E1x general-purpose processor. It measures how many single-character edits separate the strings, showing how a table-filling dynamic program maps onto the Fabric architecture.
 
 ---
 
 ## 1. Overview
 
 ### What is edit distance?
+
 The Levenshtein edit distance between two strings is the smallest number of single-character edits (insertions, deletions, or substitutions) needed to turn one string into the other. It is a standard measure of how similar two pieces of text are.
 
 The computation fills a table where entry `dist[i][j]` holds the edit distance between the first `i` characters of one string and the first `j` characters of the other. Each entry is derived from its three neighbors (above, left, and above-left), so the full distance is built up from the distances of shorter prefixes.
@@ -20,6 +21,7 @@ The computation fills a table where entry `dist[i][j]` holds the edit distance b
     )
 
 Where:
+
 - `cost` is 0 if the two characters being compared are equal, and 1 otherwise
 - the first row and first column are initialized to `0, 1, 2, ...`, the cost of building a prefix from an empty string
 - the answer is the bottom-right entry, `dist[len1][len2]`
@@ -42,7 +44,7 @@ It is a representative dynamic program whose work is dominated by comparisons an
 
 ## 3. Why EFF Hardware Performs Well
 
-The Electron E1 runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
+The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
 The edit-distance table has a regular dependency structure that maps well onto the Fabric:
 
@@ -59,11 +61,11 @@ The result is steady progress on a comparison-heavy dynamic program at low energ
 
 These definitions in `main.c` control the benchmark. Change them to resize the problem or re-run it.
 
-| Definition | Default | Effect |
-|---|---|---|
-| `NUM_ITERATIONS` | `1` | How many times the kernel runs. Increase it to average out measurement noise when benchmarking. |
-| `len1` | `28` | The length of the first string. It must match the actual length of the `s1` literal. |
-| `len2` | `27` | The length of the second string. It must match the actual length of the `s2` literal. |
-| `EDIT_DISTANCE` | `5` | The expected edit distance the result is compared against for the pass/fail print. If you change the input strings, this must be updated to match the new correct distance. |
+| Definition       | Default | Effect                                                                                                                                                                      |
+| ---------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                             |
+| `len1`           | `28`    | The length of the first string. It must match the actual length of the `s1` literal.                                                                                        |
+| `len2`           | `27`    | The length of the second string. It must match the actual length of the `s2` literal.                                                                                       |
+| `EDIT_DISTANCE`  | `5`     | The expected edit distance the result is compared against for the pass/fail print. If you change the input strings, this must be updated to match the new correct distance. |
 
-The two input strings are hardcoded literals in `main.c` (`s1` is "Efficient Launches E1 today" and `s2` is "Efficent lanched E1 today!"). You can edit these literals to compare different text, but if you do, update `len1` and `len2` to the new string lengths and update `EDIT_DISTANCE` to the new correct result.
+The two input strings are hardcoded literals in `main.c`. You can edit these literals to compare different text, but if you do, update `len1` and `len2` to the new string lengths and update `EDIT_DISTANCE` to the new correct result.

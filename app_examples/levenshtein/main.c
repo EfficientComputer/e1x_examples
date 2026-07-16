@@ -5,10 +5,10 @@
 
 #define NUM_ITERATIONS 1
 
-char *s1 = "Efficient Launches E1 today";
+char *s1 = "Efficient Launches E1x today";
 int len1 = 28;
 char *s2 =
-    "Efficent lanched E1 today!"; // 2 insertions, 2 substitution, 1 deletion
+    "Efficent lanched E1x today!"; // 2 insertions, 2 substitution, 1 deletion
 int len2 = 27;
 
 #define EDIT_DISTANCE 5

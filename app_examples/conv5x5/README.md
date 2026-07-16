@@ -1,12 +1,13 @@
 # 5x5 2D Convolution (Conv5x5)
 
-This example computes a **5x5 two-dimensional convolution** of an input image with a fixed filter on the Electron E1 general-purpose processor. It is a compact, compute-dense image and signal-processing kernel used to show how a sliding-window stencil maps onto the Fabric architecture.
+This example computes a **5x5 two-dimensional convolution** of an input image with a fixed filter on the Electron E1x general-purpose processor. It is a compact, compute-dense image and signal-processing kernel used to show how a sliding-window stencil maps onto the Fabric architecture.
 
 ---
 
 ## 1. Overview
 
 ### What is a 5x5 2D Convolution?
+
 A 5x5 2D convolution slides a 5x5 filter (also called a kernel) across a 2D input image. At every output position it multiplies the 25 filter weights by the 25 input pixels under the window and sums the products into a single output pixel. The window then steps to the next position and the process repeats. This is the core operation behind image blurring, sharpening, edge detection, and the convolutional layers of neural networks.
 
 ### Mathematical Definition
@@ -14,6 +15,7 @@ A 5x5 2D convolution slides a 5x5 filter (also called a kernel) across a 2D inpu
     O(x,y) = Σ_i Σ_j I(x+i, y+j) * K(i,j)     for i,j = 0 .. 4
 
 Where:
+
 - `I` is the input image
 - `K` is the 5x5 filter (25 weights)
 - `O` is the output image
@@ -38,7 +40,7 @@ Because it applies the same small set of weights to a large stream of data, it i
 
 ## 3. Why EFF Hardware Performs Well
 
-The Electron E1 runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
+The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
 This fits 5x5 2D convolution well:
 
@@ -57,10 +59,10 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 These definitions in `main.c` control the benchmark. Change them to resize the problem or re-run it.
 
-| Definition | Default | Effect |
-|---|---|---|
-| `NUM_ITERATIONS` | `1` | How many times the kernel runs. Increase it to average out measurement noise when benchmarking. |
-| `N` | `64` | The side length of the input image (both width and height). This sets the problem size: a larger value means a larger image and more MACs per run. |
-| `N_PAD` | `N + 4` | The padded side length of the input buffer. The filter is 5 wide, so the buffer is padded by 4 to hold the full sliding window. Derived from `N`; keep it as `N + 4`. |
-| `RANDOMIZE_FILTER` | `1` | When nonzero, the filter weights are overwritten with pseudo-random values at startup instead of the built-in weights. |
-| `RANGE` | `10` | The range of the pseudo-random filter weights. It also centers them around zero by subtracting `(RANGE - 1) / 2`. |
+| Definition         | Default | Effect                                                                                                                                                                |
+| ------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NUM_ITERATIONS`   | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                       |
+| `N`                | `64`    | The side length of the input image (both width and height). This sets the problem size: a larger value means a larger image and more MACs per run.                    |
+| `N_PAD`            | `N + 4` | The padded side length of the input buffer. The filter is 5 wide, so the buffer is padded by 4 to hold the full sliding window. Derived from `N`; keep it as `N + 4`. |
+| `RANDOMIZE_FILTER` | `1`     | When nonzero, the filter weights are overwritten with pseudo-random values at startup instead of the built-in weights.                                                |
+| `RANGE`            | `10`    | The range of the pseudo-random filter weights. It also centers them around zero by subtracting `(RANGE - 1) / 2`.                                                     |

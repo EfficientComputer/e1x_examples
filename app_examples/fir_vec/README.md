@@ -1,6 +1,6 @@
 # Finite Impulse Response Filter, Vectorized (FIR-vec)
 
-A vectorized version of the finite impulse response (FIR) filter for the Electron E1 general-purpose processor. It computes the same result as the base `fir` example but packs the arithmetic into 16-bit SIMD dot products.
+A vectorized version of the finite impulse response (FIR) filter for the Electron E1x general-purpose processor. It computes the same result as the base `fir` example but packs the arithmetic into 16-bit SIMD dot products.
 
 ## What's Different
 
@@ -13,15 +13,15 @@ This variant keeps the sliding-window filter algorithm and changes how each outp
 
 ## Why EFF Hardware Performs Well
 
-The Electron E1 runs this kernel on the Fabric architecture, a spatial dataflow design, so the effcc Compiler maps it onto the Fabric as a dataflow graph where operations fire as their inputs arrive. The SIMD dot-product operation halves the number of steps per output sample by processing two taps per lane, the packed taps stay resident on the Fabric and are reused for every sample, and the shift register keeps the overlapping input window on the Fabric so memory traffic stays low. The result is higher throughput per unit of energy than a scalar version of the same loop.
+The Electron E1x runs this kernel on the Fabric architecture, a spatial dataflow design, so the effcc Compiler maps it onto the Fabric as a dataflow graph where operations fire as their inputs arrive. The SIMD dot-product operation halves the number of steps per output sample by processing two taps per lane, the packed taps stay resident on the Fabric and are reused for every sample, and the shift register keeps the overlapping input window on the Fabric so memory traffic stays low. The result is higher throughput per unit of energy than a scalar version of the same loop.
 
 ## Configurable Parameters
 
-| Definition | Default | Effect |
-|---|---|---|
-| `N` | `64` | The number of output samples produced, defined in `fir_vec.h`. A larger value means a longer output signal and more work per run. |
-| `W` | `16` | The number of filter taps, defined in `fir_vec.h`. The vectorized kernel assumes 16 taps packed into 8 pairs, so changing it also requires reworking the packing in `fir_vec.c`. |
-| `NUM_ITERATIONS` | `1` | How many times the kernel runs. Increase it to average out noise when benchmarking. |
+| Definition       | Default | Effect                                                                                                                                                                           |
+| ---------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `N`              | `64`    | The number of output samples produced, defined in `fir_vec.h`. A larger value means a longer output signal and more work per run.                                                |
+| `W`              | `16`    | The number of filter taps, defined in `fir_vec.h`. The vectorized kernel assumes 16 taps packed into 8 pairs, so changing it also requires reworking the packing in `fir_vec.c`. |
+| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out noise when benchmarking.                                                                                              |
 
 The input signal `x` and the taps `w` are generated inline in `main.c` (`x[i] = i` and `w[i] = i - 8`), and the output is checked against an inline scalar reference, so no separate expected constant needs updating when the inputs change.
 

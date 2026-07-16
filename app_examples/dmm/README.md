@@ -1,12 +1,13 @@
 # Dense Matrix Multiply (DMM)
 
-This example computes a **dense matrix-matrix product** (`Z = A * B`) on the Electron E1 general-purpose processor. It is a compact, compute-dense linear-algebra kernel used to show how regular arithmetic maps onto the Fabric architecture.
+This example computes a **dense matrix-matrix product** (`Z = A * B`) on the Electron E1x general-purpose processor. It is a compact, compute-dense linear-algebra kernel used to show how regular arithmetic maps onto the Fabric architecture.
 
 ---
 
 ## 1. Overview
 
 ### What is a Dense Matrix Multiply?
+
 A dense matrix multiply takes an `n x m` matrix `A` and an `m x o` matrix `B` and produces an `n x o` matrix `Z`. Every element of the output is the dot product of one row of `A` with one column of `B`. "Dense" means every element is stored and processed (there is no sparsity to skip over).
 
 ### Mathematical Definition
@@ -14,6 +15,7 @@ A dense matrix multiply takes an `n x m` matrix `A` and an `m x o` matrix `B` an
     Z[i][j] = Σ A[i][k] * B[k][j]     for k = 0 .. m-1
 
 Where:
+
 - `A` is the left input matrix (`n` rows, `m` columns, row-major)
 - `B` is the right input matrix (`m` rows, `o` columns, row-major)
 - `Z` is the output matrix (`n` rows, `o` columns)
@@ -37,7 +39,7 @@ Because it is arithmetic-bound and highly regular, matrix multiply is a good mea
 
 ## 3. Why EFF Hardware Performs Well
 
-The Electron E1 runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
+The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
 This fits dense matrix multiply well:
 
@@ -54,7 +56,7 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 These definitions in `main.c` (and the shared matrix header it includes) control the benchmark. Change them to resize the problem or re-run it.
 
-| Definition | Default | Effect |
-|---|---|---|
-| `NUM_ITERATIONS` | `1` | How many times the kernel runs. Increase it to average out measurement noise when benchmarking. |
-| `MAT_REF_SIZE` | `32` | The matrix dimension (used for all of `n`, `m`, and `o`), defined in the shared `mat.h`. This sets the problem size: a larger value means larger matrices and more MACs per run, growing as O(n^3). The input matrices `mat_a` and `mat_b` are supplied from `mat.h`. |
+| Definition       | Default | Effect                                                                                                                                                                                                                                                                |
+| ---------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                                                                       |
+| `MAT_REF_SIZE`   | `32`    | The matrix dimension (used for all of `n`, `m`, and `o`), defined in the shared `mat.h`. This sets the problem size: a larger value means larger matrices and more MACs per run, growing as O(n^3). The input matrices `mat_a` and `mat_b` are supplied from `mat.h`. |
