@@ -67,7 +67,15 @@ Then rebuild, as directed below.
 
 ### Building
 
-To build all apps, execute the following commands from the top level of this folder:
+Some apps require NumPy to generate data that will be used inside of the program. With Python 3.13 or greater, create a python environment in the `app_examples` folder and install numpy:
+
+```
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+```
+
+Then, to build all apps, execute the following commands from the top level of this folder:
 
 ```
 mkdir bld
@@ -76,7 +84,19 @@ cmake -G Ninja .. -DEFF_STDIO_PORT=3
 ninja
 ```
 
-This will produce .hex files for flashing in `../bld/<app>/fabric/<app>.hex`
+This will produce .hex files for flashing in `../bld/<app>/fabric/<app>.hex`.
+
+To build a specific app, specify your desired build to ninja:
+
+```
+ninja <app>/fabric/<app>
+```
+
+If you don't want `effcc` to compile for the fabric, use:
+
+```
+ninja <app>/scalar/<app>
+```
 
 ### Flashing
 
