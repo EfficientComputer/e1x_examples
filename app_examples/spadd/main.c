@@ -3,15 +3,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "spadd.h"
+
 #define NUM_ITERATIONS 1
 
 #define MAT_REF_SIZE 32
 const int32_t EXPECTED_CHECKSUM = -30;
-
-void spadd(const int32_t *A_vals, const uint32_t *A_rows,
-           const uint32_t *A_coords, const int32_t *B_vals,
-           const uint32_t *B_rows, const uint32_t *B_coords, int32_t *Z,
-           uint32_t rows);
 
 int32_t mat_z[MAT_REF_SIZE][MAT_REF_SIZE];
 

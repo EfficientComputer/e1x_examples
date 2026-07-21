@@ -1,3 +1,5 @@
+#include "spadd.h"
+
 #ifdef __EFFCC__
 #include <eff.h>
 #endif
