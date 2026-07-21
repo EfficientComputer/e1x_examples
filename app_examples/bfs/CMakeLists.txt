@@ -5,4 +5,8 @@ add_eff_app(bfs
     SOURCE main.c bfs.c bfs_graph.c
 )
 
-eff_subtarget_compile_options(bfs_fabric PRIVATE -DUSE_PRAGMAS --disable-memory-ordering)
+eff_subtarget_compile_options(bfs_fabric PRIVATE -DUSE_PRAGMAS)
+
+if(EFF_BLD_HAND_OPTIMIZED)
+    eff_subtarget_compile_options(bfs_fabric PRIVATE --disable-memory-ordering)
+endif()

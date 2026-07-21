@@ -60,7 +60,7 @@ Each app is contained in its own directory with a `CMakeLists.txt` for building.
 Many apps ship with both a portable reference implementation and a hand-optimized version tuned for the E1x Fabric. To build the hand-optimized versions, edit the top-level `CMakeLists.txt` in the `app_examples` folder and uncomment the following line:
 
 ```
-add_compile_definitions(EFF_BLD_HAND_OPTIMIZED)
+set(EFF_BLD_HAND_OPTIMIZED ON)
 ```
 
 Then rebuild, as directed below.
@@ -80,7 +80,7 @@ Then, to build all apps, execute the following commands from the top level of th
 ```
 mkdir bld
 cd bld
-cmake -G Ninja .. -DEFF_STDIO_PORT=3
+cmake -G Ninja ..
 ninja
 ```
 

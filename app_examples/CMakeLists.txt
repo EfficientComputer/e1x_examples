@@ -6,15 +6,19 @@ set(CMAKE_CXX_COMPILER_WORKS 1)
 project(app_examples)
 
 # Uncomment to enable hand-optimized app versions
-# add_compile_definitions(EFF_BLD_HAND_OPTIMIZED)
+# set(EFF_BLD_HAND_OPTIMIZED ON)
 
 # EVK Requires UART peripheral 3
 set(EFF_STDIO_PORT 3)
 
 # Replace with your EFF SDK path if installed elsewhere
-file(REAL_PATH "$ENV{HOME}/effcc/sdk" EFF_SDK_ROOT_DIR)
+file(REAL_PATH "~/effcc/sdk" EFF_SDK_ROOT_DIR)
 include(${EFF_SDK_ROOT_DIR}/setup_sdk.cmake)
 add_subdirectory(${EFF_SDK_ROOT_DIR} sdk)
+
+if(EFF_BLD_HAND_OPTIMIZED)
+    add_compile_definitions(EFF_BLD_HAND_OPTIMIZED)
+endif()
 
 add_subdirectory(bfs)
 add_subdirectory(biquad_filter)
