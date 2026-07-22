@@ -1,208 +1,65 @@
-# JPEG Decode and Reference Validation Example
+# JPEG Encode with Reference Validation (JPEG)
 
-This code package provides a **JPEG decoding example** designed for **Efficient Computer (EFF) hardware and toolchains**.  
-It demonstrates **end-to-end JPEG decoding**, reference validation, and correctness checking using a **known-good software reference decoder**.
-
-The example is intended to showcase:
-- Realistic image-processing workloads
-- Memory and compute behavior of JPEG decode
-- Correctness validation against a trusted reference
+This example runs a JPEG codec over an embedded test image on the Electron E1 general-purpose processor. It compresses the image with an optimized encode path and validates the result against a trusted reference, a realistic image-processing workload with mixed control flow and arithmetic.
 
 ---
 
 ## 1. Overview
 
-### What Does This Example Do?
-This application:
-1. Decodes a JPEG image using an optimized JPEG decoder
-2. Decodes the same JPEG using a **reference implementation**
-3. Compares the decoded RGB output buffers
-4. Reports mismatches and correctness status
+### What is JPEG?
+JPEG is the most widely used lossy image compression format. Encoding an image works block by block: the pixels are converted from RGB into a luma and chroma color space, each 8x8 block is transformed with a discrete cosine transform (DCT), the transformed coefficients are quantized to discard visually unimportant detail, and the quantized values are entropy coded (Huffman) into a compact bitstream. This example runs an optimized fixed-point encoder over an embedded image and checks the output against a known-good reference.
 
-This mirrors a **real-world validation workflow** used when porting or optimizing codecs for new hardware.
+### Mathematical Definition
 
----
+The central step is the 2D DCT applied to each 8x8 pixel block, followed by quantization. For an 8x8 block of samples f(x, y), the transform coefficients F(u, v) are:
 
-## 2. Why JPEG Decode Is Important
+    F(u,v) = (1/4) * C(u) * C(v) * Σx Σy f(x,y) * cos((2x+1)*u*pi/16) * cos((2y+1)*v*pi/16)
 
-JPEG decoding is a **widely deployed, real-world workload** found in:
-- Cameras and imaging pipelines
-- Embedded vision systems
-- ML preprocessing pipelines
-- Mobile and edge devices
+where the sums run over x = 0..7 and y = 0..7, and C(w) = 1/sqrt(2) for w = 0 and 1 otherwise. Each coefficient is then quantized:
 
-It is challenging because it combines:
-- Bitstream parsing
-- Huffman decoding
-- IDCT and dequantization
-- Color conversion
-- Non-trivial memory access patterns
+    Fq(u,v) = round( F(u,v) / Q(u,v) )
 
-As such, JPEG decode is an excellent benchmark for **compute efficiency, memory bandwidth, and control flow handling**.
+where Q(u,v) is the quantization table entry, scaled by the chosen quality setting. This example computes the DCT and quantization in fixed-point arithmetic.
 
 ---
 
-## 3. Code Structure
+## 2. Why This Kernel Matters
 
-### Core Files
+JPEG is deployed almost everywhere images are stored or moved, so its codec is a representative real-world workload:
 
-- **`jpeg.c`**
-  - Optimized JPEG decoder implementation
-  - Handles JPEG bitstream parsing and image reconstruction
-  - Produces decoded image output in RGB format
+- Cameras and imaging pipelines, where captured frames are compressed for storage or transmission
+- Embedded and edge vision systems, where images are encoded before being sent upstream
+- Machine learning preprocessing, where large image sets are decoded and re-encoded at scale
+- Mobile and battery-powered devices, where image handling must stay within a tight energy budget
 
-- **`stbi_ref.h`**
-  - Reference JPEG decoder based on `stb_image`
-  - Used as a **golden reference** for correctness
-  - Not optimized; intended only for validation
-
-- **`image.c`**
-  - Contains embedded JPEG image data
-  - Defines image size, format, and input buffer
-  - Used as deterministic test input
-
-- **`generate_answer.c`**
-  - Runs the reference decoder
-  - Generates expected (golden) output
-  - Can be used offline or as part of the validation flow
-
-- **`main.c`**
-  - Application entry point
-  - Invokes both optimized and reference decoders
-  - Compares decoded RGB outputs
-  - Reports mismatches and summary results
+Because it combines block transforms, quantization, entropy coding, and irregular control flow, JPEG is a strong test of how well an architecture handles a mix of arithmetic and data-dependent branching.
 
 ---
 
-## 4. Data Flow
+## 3. Why EFF Hardware Performs Well
 
-JPEG bitstream (image.h)
-|
-v
-Optimized JPEG Decoder (jpeg.c)
-|
-v
-Decoded RGB output (opt)
+The Electron E1 runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
-JPEG bitstream (image.h)
-|
-v
-Reference Decoder (stbi_ref.h)
-|
-v
-Decoded RGB output (ref)
+This fits JPEG encoding well:
 
-opt vs ref  → correctness check
+- The 8x8 DCT is a fixed pattern of multiplies and adds that maps cleanly onto the dataflow graph and runs the same way for every block
+- Block coefficients stay resident on the Fabric and flow directly from the transform into quantization and entropy coding instead of spilling to memory
+- The regular, per-block pixel access pattern is known ahead of time, so addressing is built into the graph
+- Fixed-point arithmetic keeps the transform and quantization efficient on integer hardware
+- The steady stream of blocks overlaps computation with data movement, keeping throughput high while control overhead stays low
+
+The result is efficient image compression at low energy, which is the metric that matters most for battery-powered and always-on devices.
 
 ---
 
-## 5. Output Format
+## 4. Configurable Parameters
 
-- Decoded output is **RGB888**
-- Data layout: R0, G0, B0, R1, G1, B1, …
+The test image is embedded in the app (a 240x160 RGB image in `image.c`, declared in `image.h`), so there is no external input file. These definitions and constants in `main.c` control the benchmark. Change them to re-run it or adjust what is encoded.
 
-- Output buffers are compared **element-by-element**
-- Floating-point or integer comparisons use appropriate tolerances (if applicable)
+| Definition | Default | Effect |
+|---|---|---|
+| `NUM_ITERATIONS` | `1` | How many times the encode kernel runs. Increase it to average out measurement noise when benchmarking. |
+| `IMAGE_DIVIDER` | `10` | Divides the image height, so only the top `IMAGE_HEIGHT / IMAGE_DIVIDER` rows are encoded. Lowering it encodes more of the image and increases the work per run. |
+| `answer_length` | `1056` | The expected size in bytes of the encoded JPEG produced by the reference. The optimized output size is compared against this value with a 2 percent tolerance (to account for fixed-point versus floating-point rounding). If you change the image, the encoded region, or the quality, this must be updated to match the new reference result. |
 
----
-
-## 6. Correctness Validation
-
-Correctness is verified by comparing the optimized decoder output against the reference decoder:
-
-- Byte-wise comparison for RGB data
-- Detailed mismatch reporting:
-- Pixel index
-- Channel
-- Expected vs actual value
-
-This ensures that:
-- Bitstream parsing is correct
-- IDCT and color conversion are accurate
-- No memory corruption or alignment issues exist
-
----
-
-## 7. Build Instructions
-
-### Prerequisites
-- C compiler compatible with EFF SDK
-- Standard EFF build environment (sim / fabric)
-- CMake or existing EFF build system
-
-### Build
-Refer to the standard EFF SDK build instructions.  
-The build compiles:
-- Optimized JPEG decoder
-- Reference decoder
-- Test harness (`main.c`)
-
----
-
-## 8. Running the Example
-
-Run the compiled binary using your standard EFF workflow.
-
-At runtime, the program:
-1. Loads the embedded JPEG image
-2. Decodes using the optimized JPEG path
-3. Decodes using the reference path
-4. Compares outputs
-5. Prints pass/fail status and mismatch details (if any)
-
----
-
-## 9. Performance Considerations
-
-This example highlights:
-- Control-heavy workloads with irregular memory access
-- Sustained throughput of IDCT and color conversion
-- Flash-to-SRAM data movement costs
-- Benefits of optimized decode kernels on EFF hardware
-
-Performance can be evaluated using:
-- Cycle counters
-- Simulator statistics
-- Hardware profiling tools
-
----
-
-## 10. Why This Example Matters
-
-JPEG decoding represents:
-- A **real customer workload**
-- A mix of scalar, control, and arithmetic operations
-- A stress test for memory systems and instruction scheduling
-
-Efficient execution directly impacts:
-- Image decode latency
-- Power consumption
-- End-to-end vision pipeline performance
-
----
-
-## 11. Summary
-
-- Demonstrates a full **JPEG decode pipeline**
-- Validates correctness against a trusted reference
-- Uses deterministic embedded test data
-- Highlights EFF hardware strengths on real-world codecs
-- Suitable for benchmarking, validation, and regression testing
-
----
-
-## 12. Notes
-
-- Reference decoder is included for validation only
-- Optimized decoder behavior should always match reference output
-- Any mismatch indicates a functional bug and should be investigated
-
-
-## 13. generate_answer.c
-
-- To build:  "gcc -O3 -Wall generate_answer.c image.c -o generate_answer". 
-- To run:    "./generate_answer" 
-- Output :   answer.jpg — generated JPEG image
-             answer.c — auto-generated C source with embedded JPEG data
-
----
+The image dimensions are fixed by the embedded data: `IMAGE_WIDTH` (240) and `IMAGE_HEIGHT` (160) are defined in `image.h`. The encode quality is passed as an argument to the encoder (50 in this example). The reference size (`answer_length`) is produced offline by `generate_answer.c`, which runs the reference encoder on the same image. If you change the input or any encode setting, regenerate the reference so the comparison matches the new correct result.

@@ -1,4 +1,7 @@
+#ifdef __EFFCC__
 #include <eff.h>
+#endif
+
 #include <stdio.h>
 #include <stdint.h>
 
@@ -10,11 +13,12 @@
 #define SAMP_MAX 32767
 #define FRACBITS 15
 
-__efficient__
-void biquad_filter_q15(const int16_t *input, int16_t *output,
+#ifdef EFF_BLD_HAND_OPTIMIZED
+__efficient__ void biquad_filter_q15(const int16_t *input, int16_t *output,
                                      int length, const int32_t p1,
                                      const int32_t p2, const int32_t z0,
-                                     const int32_t z1, const int32_t z2) {
+                                     const int32_t z1, const int32_t z2)
+{
     int32_t x1_0 = 0;
     int32_t x2_0 = 0;
     int32_t y1_0 = 0;
@@ -38,7 +42,8 @@ void biquad_filter_q15(const int16_t *input, int16_t *output,
     const uint32_t *input32 = (const uint32_t *)input;
     uint32_t *output32 = (uint32_t *)output;
 
-    for (int n = 0; n < length; n += 4) {
+    for (int n = 0; n < length; n += 4)
+    {
         in01 = input32[0];
         in23 = input32[1];
 
@@ -98,12 +103,41 @@ void biquad_filter_q15(const int16_t *input, int16_t *output,
         output32 += 2;
     }
 }
+#else
+__efficient__ void biquad_filter_q15(const int16_t *input, int16_t *output,
+                                     int length, const int32_t p1,
+                                     const int32_t p2, const int32_t z0,
+                                     const int32_t z1, const int32_t z2)
+{
+    // Implemented from https://en.wikipedia.org/wiki/Digital_biquad_filter
 
-void biquad_filter(const int16_t* input, int16_t* output, int length, const float p[2], const float z[3]) {
+    int32_t x1 = 0;
+    int32_t x2 = 0;
+    int32_t y1 = 0;
+    int32_t y2 = 0;
+
+    for (int n = 0; n < length; n++)
+    {
+        int32_t x = input[n];
+        int32_t acc = x * z0 + x1 * z1 + x2 * z2 - y1 * p1 - y2 * p2;
+
+        int32_t y = FIXED_ROUND(acc);
+        output[n] = (int16_t)y;
+        y2 = y1;
+        y1 = y;
+        x2 = x1;
+        x1 = x;
+    }
+}
+
+#endif
+
+void biquad_filter(const int16_t *input, int16_t *output, int length, const float p[2], const float z[3])
+{
     biquad_filter_q15(input, output, length,
-                     (int32_t)(p[0] * SAMP_MAX),
-                     (int32_t)(p[1] * SAMP_MAX),
-                     (int32_t)(z[0] * SAMP_MAX),
-                     (int32_t)(z[1] * SAMP_MAX),
-                     (int32_t)(z[2] * SAMP_MAX));
+                      (int32_t)(p[0] * SAMP_MAX),
+                      (int32_t)(p[1] * SAMP_MAX),
+                      (int32_t)(z[0] * SAMP_MAX),
+                      (int32_t)(z[1] * SAMP_MAX),
+                      (int32_t)(z[2] * SAMP_MAX));
 }

@@ -4,7 +4,10 @@
    Modified by Daniel Cooper of Efficient Computer for application demonstration
 */
 
+#ifdef __EFFCC__
 #include <eff.h>
+#endif
+
 #include <math.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -19,6 +22,14 @@
 #endif
 
 #define STBIW_UCHAR(x) (unsigned char)((x) & 0xff)
+
+#ifdef EFF_BLD_HAND_OPTIMIZED
+#define __efficient___opt __efficient__
+#define __efficient___naive
+#else
+#define __efficient___opt
+#define __efficient___naive __efficient__
+#endif
 
 #define FIXED_POINT 32
 #if FIXED_POINT == 32
@@ -53,7 +64,8 @@ typedef int16_t fixed_point;
 
 // initialize a callback-based context
 static void stbi__start_write_callbacks(stbi__write_context *s,
-                                        stbi_write_func *c, void *context) {
+                                        stbi_write_func *c, void *context)
+{
     s->func = c;
     s->context = context;
 }
@@ -64,29 +76,35 @@ int output_arr_length = 0;
 const int stbi__flip_vertically_on_write = 0;
 
 int counter = 0;
-static void stbi__stdio_write(void *context, void *data, int size) {
+static void stbi__stdio_write(void *context, void *data, int size)
+{
     counter += size;
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
+    {
         jpeg_output_arr[output_arr_length++] = ((unsigned char *)data)[i];
     }
 }
 
-static void stbiw__fopen() {
+static void stbiw__fopen()
+{
     // no file IO, just static arrays
     output_arr_length = 0;
 }
 
-static int stbi__start_write_file(stbi__write_context *s) {
+static int stbi__start_write_file(stbi__write_context *s)
+{
     stbiw__fopen();
     stbi__start_write_callbacks(s, stbi__stdio_write, NULL);
     return 1;
 }
 
-static void stbi__end_write_file(stbi__write_context *s) {
+static void stbi__end_write_file(stbi__write_context *s)
+{
     // no file IO, just static arrays
 }
 
-static void stbiw__putc(stbi__write_context *s, unsigned char c) {
+static void stbiw__putc(stbi__write_context *s, unsigned char c)
+{
     counter += 1;
     jpeg_output_arr[output_arr_length++] = c;
 }
@@ -104,29 +122,32 @@ typedef int stb_image_write_test[sizeof(stbiw_uint32) == 4 ? 1 : -1];
  */
 
 static const unsigned char stbiw__jpg_ZigZag[] = {
-    0,  1,  5,  6,  14, 15, 27, 28, 2,  4,  7,  13, 16, 26, 29, 42,
-    3,  8,  12, 17, 25, 30, 41, 43, 9,  11, 18, 24, 31, 40, 44, 53,
+    0, 1, 5, 6, 14, 15, 27, 28, 2, 4, 7, 13, 16, 26, 29, 42,
+    3, 8, 12, 17, 25, 30, 41, 43, 9, 11, 18, 24, 31, 40, 44, 53,
     10, 19, 23, 32, 39, 45, 52, 54, 20, 22, 33, 38, 46, 51, 55, 60,
-    21, 34, 37, 47, 50, 56, 59, 61, 35, 36, 48, 49, 57, 58, 62, 63
-};
+    21, 34, 37, 47, 50, 56, 59, 61, 35, 36, 48, 49, 57, 58, 62, 63};
 
 static unsigned char stbiw__jpg_ZigZag_inv[64];
 
-typedef struct {
+typedef struct
+{
     unsigned short bitBuf;
     unsigned short count;
 } stbiw_bits;
 
 static int stbiw__jpg_writeBits_direct(stbi__write_context *s, int *bitBufP,
-                                       int *bitCntP, stbiw_bits bs, int pos) {
+                                       int *bitCntP, stbiw_bits bs, int pos)
+{
     int bitBuf = *bitBufP, bitCnt = *bitCntP;
     bitCnt += bs.count;
     bitBuf |= bs.bitBuf << (24 - bitCnt);
     int itCount = bitCnt >> 3;
-    for (int i = 0; i < itCount; i++) {
+    for (int i = 0; i < itCount; i++)
+    {
         unsigned char c = (bitBuf >> 16) & 255;
         jpeg_output_arr[pos++] = c;
-        if (c == 255) {
+        if (c == 255)
+        {
             jpeg_output_arr[pos++] = 0;
         }
         bitBuf <<= 8;
@@ -140,7 +161,8 @@ static int stbiw__jpg_writeBits_direct(stbi__write_context *s, int *bitBufP,
 
 __attribute__((always_inline)) static void stbiw__jpg_DCT(
     fixed_point *d0p, fixed_point *d1p, fixed_point *d2p, fixed_point *d3p,
-    fixed_point *d4p, fixed_point *d5p, fixed_point *d6p, fixed_point *d7p) {
+    fixed_point *d4p, fixed_point *d5p, fixed_point *d6p, fixed_point *d7p)
+{
     fixed_point d0 = *d0p, d1 = *d1p, d2 = *d2p, d3 = *d3p, d4 = *d4p,
                 d5 = *d5p, d6 = *d6p, d7 = *d7p;
     fixed_point z1, z2, z3, z4, z5, z11, z13;
@@ -155,33 +177,33 @@ __attribute__((always_inline)) static void stbiw__jpg_DCT(
     fixed_point tmp4 = d3 - d4;
 
     // Even part
-    fixed_point tmp10 = tmp0 + tmp3;  // phase 2
+    fixed_point tmp10 = tmp0 + tmp3; // phase 2
     fixed_point tmp13 = tmp0 - tmp3;
     fixed_point tmp11 = tmp1 + tmp2;
     fixed_point tmp12 = tmp1 - tmp2;
 
-    d0 = tmp10 + tmp11;  // phase 3
+    d0 = tmp10 + tmp11; // phase 3
     d4 = tmp10 - tmp11;
 
-    z1 = FIXED_POINT_MUL_CONST((tmp12 + tmp13), 0.707106781f);  // c4
-    d2 = tmp13 + z1;                                            // phase 5
+    z1 = FIXED_POINT_MUL_CONST((tmp12 + tmp13), 0.707106781f); // c4
+    d2 = tmp13 + z1;                                           // phase 5
     d6 = tmp13 - z1;
 
     // Odd part
-    tmp10 = tmp4 + tmp5;  // phase 2
+    tmp10 = tmp4 + tmp5; // phase 2
     tmp11 = tmp5 + tmp6;
     tmp12 = tmp6 + tmp7;
 
     // The rotator is modified from fig 4-8 to avoid extra negations.
-    z5 = FIXED_POINT_MUL_CONST((tmp10 - tmp12), 0.382683433f);  // c6
-    z2 = FIXED_POINT_MUL_CONST(tmp10, 0.541196100f) + z5;       // c2-c6
-    z4 = FIXED_POINT_MUL_CONST(tmp12, 1.306562965f) + z5;       // c2+c6
-    z3 = FIXED_POINT_MUL_CONST(tmp11, 0.707106781f);            // c4
+    z5 = FIXED_POINT_MUL_CONST((tmp10 - tmp12), 0.382683433f); // c6
+    z2 = FIXED_POINT_MUL_CONST(tmp10, 0.541196100f) + z5;      // c2-c6
+    z4 = FIXED_POINT_MUL_CONST(tmp12, 1.306562965f) + z5;      // c2+c6
+    z3 = FIXED_POINT_MUL_CONST(tmp11, 0.707106781f);           // c4
 
-    z11 = tmp7 + z3;  // phase 5
+    z11 = tmp7 + z3; // phase 5
     z13 = tmp7 - z3;
 
-    *d5p = z13 + z2;  // phase 6
+    *d5p = z13 + z2; // phase 6
     *d3p = z13 - z2;
     *d1p = z11 + z4;
     *d7p = z11 - z4;
@@ -192,11 +214,13 @@ __attribute__((always_inline)) static void stbiw__jpg_DCT(
     *d6p = d6;
 }
 
-__attribute__((always_inline)) stbiw_bits stbiw__jpg_calcBits(int val) {
+__attribute__((always_inline)) stbiw_bits stbiw__jpg_calcBits(int val)
+{
     int absVal = val < 0 ? -val : val;
     val = val < 0 ? val - 1 : val;
     int bitCount = 1;
-    while (absVal >>= 1) {
+    while (absVal >>= 1)
+    {
         bitCount++;
     }
 
@@ -207,13 +231,16 @@ __attribute__((always_inline)) stbiw_bits stbiw__jpg_calcBits(int val) {
 __attribute__((always_inline)) int stbiw__jpg_dct_DU(int32_t DU[64],
                                                      fixed_point *CDU,
                                                      int du_stride,
-                                                     fixed_point *fdtbl) {
+                                                     fixed_point *fdtbl)
+{
+#ifdef EFF_BLD_HAND_OPTIMIZED
     int lastNonZero0 = 0;
     int lastNonZero1 = 0;
     int lastNonZero2 = 0;
     int lastNonZero3 = 0;
 
-    for (int outIdx = 0; outIdx < 64; outIdx += 4) {
+    for (int outIdx = 0; outIdx < 64; outIdx += 4)
+    {
         int j0 = stbiw__jpg_ZigZag_inv[outIdx];
         int i0 = (j0 & 0x7) + (j0 >> 3) * du_stride;
         int j1 = stbiw__jpg_ZigZag_inv[outIdx + 1];
@@ -236,16 +263,20 @@ __attribute__((always_inline)) int stbiw__jpg_dct_DU(int32_t DU[64],
         DU[outIdx + 2] = outVal2;
         DU[outIdx + 3] = outVal3;
 
-        if (outVal0 != 0) {
+        if (outVal0 != 0)
+        {
             lastNonZero0 = outIdx;
         }
-        if (outVal1 != 0) {
+        if (outVal1 != 0)
+        {
             lastNonZero1 = outIdx + 1;
         }
-        if (outVal2 != 0) {
+        if (outVal2 != 0)
+        {
             lastNonZero2 = outIdx + 2;
         }
-        if (outVal3 != 0) {
+        if (outVal3 != 0)
+        {
             lastNonZero3 = outIdx + 3;
         }
     }
@@ -254,13 +285,30 @@ __attribute__((always_inline)) int stbiw__jpg_dct_DU(int32_t DU[64],
     int last23 = lastNonZero2 > lastNonZero3 ? lastNonZero2 : lastNonZero3;
 
     return last01 > last23 ? last01 : last23;
+#else
+    int lastNonZero = 0;
+    for (int outIdx = 0; outIdx < 64; outIdx++) {
+        int j = stbiw__jpg_ZigZag_inv[outIdx];
+        int i = (j & 0x7) + (j >> 3) * du_stride;
+
+        fixed_point v = FIXED_POINT_MUL(CDU[i], fdtbl[j]);
+        int32_t outVal = FIXED_POINT_ROUND_TO_INT(v);
+        DU[outIdx] = outVal;
+
+        if (outVal != 0) {
+            lastNonZero = outIdx;
+        }
+    }
+    return lastNonZero;
+#endif
 }
 
-//__efficient__
+//__efficient___opt
 void stbiw__jpg_encode_DC(stbi__write_context *s, int *bitBuf, int *bitCnt,
                           int32_t DU[64], int DC,
                           const unsigned short HTDC[256][2],
-                          const unsigned short HTAC[256][2], int *pos) {
+                          const unsigned short HTAC[256][2], int *pos)
+{
     int bitBufLocal = *bitBuf;
     int bitCntLocal = *bitCnt;
     int posLocal = *pos;
@@ -271,15 +319,21 @@ void stbiw__jpg_encode_DC(stbi__write_context *s, int *bitBuf, int *bitCnt,
 
     stbiw_bits bitsDC = stbiw__jpg_calcBits(diff);
 
-    for (int i = 0; numDC > i; i++) {
+    for (int i = 0; numDC > i; i++)
+    {
         stbiw_bits buf;
-        if (numDC == 1) {
+        if (numDC == 1)
+        {
             buf.bitBuf = HTDC[0][0];
             buf.count = HTDC[0][1];
-        } else if (i == 0) {
+        }
+        else if (i == 0)
+        {
             buf.bitBuf = HTDC[bitsDC.count][0];
             buf.count = HTDC[bitsDC.count][1];
-        } else {
+        }
+        else
+        {
             buf = bitsDC;
         }
 
@@ -294,12 +348,13 @@ void stbiw__jpg_encode_DC(stbi__write_context *s, int *bitBuf, int *bitCnt,
     return;
 }
 
-//__efficient__
+//__efficient___opt
 void stbiw__jpg_encode_AC(stbi__write_context *s, int *bitBuf, int *bitCnt,
                           int32_t DU[64], int DC,
                           const unsigned short HTDC[256][2],
                           const unsigned short HTAC[256][2], int *pos,
-                          int end0pos) {
+                          int end0pos)
+{
     const stbiw_bits M16zeroes = {HTAC[0xF0][0], HTAC[0xF0][1]};
 
     int bitBufLocal = *bitBuf;
@@ -309,22 +364,30 @@ void stbiw__jpg_encode_AC(stbi__write_context *s, int *bitBuf, int *bitCnt,
     // Encode ACs
 
     int startpos = 1;
-    for (int i = 1; i <= end0pos; ++i) {
+    for (int i = 1; i <= end0pos; ++i)
+    {
         int64_t du_val = DU[i];
-        if (du_val != 0) {
+        if (du_val != 0)
+        {
             stbiw_bits bits = stbiw__jpg_calcBits(du_val);
 
             int nrzeroes = i - startpos;
             int nrzeroesMasked = nrzeroes & 0xF;
             int lng = nrzeroes >> 4;
-            for (int nrmarker = 0; nrmarker < lng + 2; ++nrmarker) {
+            for (int nrmarker = 0; nrmarker < lng + 2; ++nrmarker)
+            {
                 stbiw_bits buf;
-                if (nrmarker < lng) {
+                if (nrmarker < lng)
+                {
                     buf = M16zeroes;
-                } else if (nrmarker == lng) {
+                }
+                else if (nrmarker == lng)
+                {
                     buf.bitBuf = HTAC[(nrzeroesMasked << 4) + bits.count][0];
                     buf.count = HTAC[(nrzeroesMasked << 4) + bits.count][1];
-                } else {
+                }
+                else
+                {
                     buf = bits;
                 }
                 posLocal = stbiw__jpg_writeBits_direct(
@@ -343,31 +406,38 @@ void stbiw__jpg_encode_AC(stbi__write_context *s, int *bitBuf, int *bitCnt,
 __attribute__((always_inline)) int stbiw__jpg_encode_DC_AC(
     stbi__write_context *s, int *bitBuf, int *bitCnt, int32_t DU[64], int DC,
     const unsigned short HTDC[256][2], const unsigned short HTAC[256][2],
-    int *pos, int lastNonZero) {
+    int *pos, int lastNonZero)
+{
     const stbiw_bits EOB = {HTAC[0x00][0], HTAC[0x00][1]};
 
     stbiw__jpg_encode_DC(s, bitBuf, bitCnt, DU, DC, HTDC, HTAC, pos);
 
-    if (lastNonZero > 0) {
+    if (lastNonZero > 0)
+    {
         stbiw__jpg_encode_AC(s, bitBuf, bitCnt, DU, DC, HTDC, HTAC, pos,
                              lastNonZero);
     }
 
-    if (lastNonZero == 0 || lastNonZero != 63) {
+    if (lastNonZero == 0 || lastNonZero != 63)
+    {
         *pos = stbiw__jpg_writeBits_direct(s, bitBuf, bitCnt, EOB, *pos);
     }
 
     return DU[0];
 }
 
-__efficient__ static void stbiw__subsample_UV(int subIterCount,
-                                                  fixed_point subUs[][64],
-                                                  fixed_point subVs[][64],
-                                                  fixed_point Us[][256],
-                                                  fixed_point Vs[][256]) {
-    for (int j = 0; j < subIterCount; j++) {
-        for (int yy = 0, pos = 0; yy < 8; ++yy) {
-            for (int xx = 0; xx < 8; ++xx, ++pos) {
+__efficient___opt static void stbiw__subsample_UV(int subIterCount,
+                                              fixed_point subUs[][64],
+                                              fixed_point subVs[][64],
+                                              fixed_point Us[][256],
+                                              fixed_point Vs[][256])
+{
+    for (int j = 0; j < subIterCount; j++)
+    {
+        for (int yy = 0, pos = 0; yy < 8; ++yy)
+        {
+            for (int xx = 0; xx < 8; ++xx, ++pos)
+            {
                 int k = yy * 32 + xx * 2;
                 subUs[j][pos] =
                     FIXED_POINT_MUL_CONST((Us[j][k + 0] + Us[j][k + 1] +
@@ -382,20 +452,23 @@ __efficient__ static void stbiw__subsample_UV(int subIterCount,
     }
 }
 
-__efficient__ static void stbiw__convert_colors_16(
+__efficient___opt static void stbiw__convert_colors_16(
     int iterIdx, int subIterCount, int numIterW, int numIterH,
     int32_t magicNumber, int height, int width, int comp, int widthComp,
     const unsigned char *dataR, const unsigned char *dataG,
     const unsigned char *dataB, fixed_point Ys[][256], fixed_point Us[][256],
-    fixed_point Vs[][256]) {
-    for (int j = 0; j < subIterCount; j++) {
+    fixed_point Vs[][256])
+{
+    for (int j = 0; j < subIterCount; j++)
+    {
         // int x = ((j + iterIdx) % numIterW) * 16;
         // int y = ((j + iterIdx) / numIterW) * 16;
         int y = (((j + iterIdx) * magicNumber) >> 20) & 0xFFF0;
         int x = ((j + iterIdx)) * 16 - y * numIterW;
 
-        __effcc_parallel(2)  // <-- should be here!
-            for (int row = y; row < y + 16; row += 1) {
+        __effcc_parallel(2) // <-- should be here!
+            for (int row = y; row < y + 16; row += 1)
+        {
             // row >= height => use last input row
             int clamped_row = (row < height) ? row : height - 1;
             int base_p =
@@ -403,7 +476,8 @@ __efficient__ static void stbiw__convert_colors_16(
                                                 : clamped_row) *
                 widthComp;
 
-            for (int col = x; col < x + 16; ++col) {
+            for (int col = x; col < x + 16; ++col)
+            {
                 int pos = (row - y) * 16 + (col - x);
 
                 // if col >= width => use pixel from last input column
@@ -426,20 +500,23 @@ __efficient__ static void stbiw__convert_colors_16(
     }
 }
 
-__efficient__ static void stbiw__convert_colors_8(
+__efficient___opt static void stbiw__convert_colors_8(
     int iterIdx, int subIterCount, int numIterW, int numIterH,
     int32_t magicNumber, int height, int width, int comp, int widthComp,
     const unsigned char *dataR, const unsigned char *dataG,
     const unsigned char *dataB, fixed_point Ys[][64], fixed_point Us[][64],
-    fixed_point Vs[][64]) {
-    for (int j = 0; j < subIterCount; j++) {
+    fixed_point Vs[][64])
+{
+    for (int j = 0; j < subIterCount; j++)
+    {
         // int x = ((j + iterIdx) % numIterW) * 8;
         // int y = ((j + iterIdx) / numIterW) * 8;
         int y = (((j + iterIdx) * magicNumber) >> 21) & 0xFFF8;
         int x = ((j + iterIdx)) * 8 - y * numIterW;
 
         // __effcc_parallel(2) // <-- should be here!
-        for (int row = y; row < y + 8; row += 1) {
+        for (int row = y; row < y + 8; row += 1)
+        {
             // row >= height => use last input row
             int clamped_row = (row < height) ? row : height - 1;
             int base_p =
@@ -447,7 +524,8 @@ __efficient__ static void stbiw__convert_colors_8(
                                                 : clamped_row) *
                 widthComp;
 
-            for (int col = x; col < x + 8; ++col) {
+            for (int col = x; col < x + 8; ++col)
+            {
                 int pos = (row - y) * 8 + (col - x);
 
                 // if col >= width => use pixel from last input column
@@ -471,9 +549,9 @@ __efficient__ static void stbiw__convert_colors_8(
 }
 
 static const int YQT[] = {
-    16, 11, 10, 16, 24,  40,  51,  61,  12, 12, 14, 19, 26,  58,  60,  55,
-    14, 13, 16, 24, 40,  57,  69,  56,  14, 17, 22, 29, 51,  87,  80,  62,
-    18, 22, 37, 56, 68,  109, 103, 77,  24, 35, 55, 64, 81,  104, 113, 92,
+    16, 11, 10, 16, 24, 40, 51, 61, 12, 12, 14, 19, 26, 58, 60, 55,
+    14, 13, 16, 24, 40, 57, 69, 56, 14, 17, 22, 29, 51, 87, 80, 62,
+    18, 22, 37, 56, 68, 109, 103, 77, 24, 35, 55, 64, 81, 104, 113, 92,
     49, 64, 78, 87, 103, 121, 120, 101, 72, 92, 95, 98, 112, 100, 103, 99};
 static const int UVQT[] = {17, 18, 24, 47, 99, 99, 99, 99, 18, 21, 26, 66, 99,
                            99, 99, 99, 24, 26, 56, 99, 99, 99, 99, 99, 47, 66,
@@ -481,11 +559,17 @@ static const int UVQT[] = {17, 18, 24, 47, 99, 99, 99, 99, 18, 21, 26, 66, 99,
                            99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
                            99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99};
 
-__efficient__ static void stbiw__jpg_prepare_UY_tables(
-    int quality, unsigned char UVTable[64], unsigned char YTable[64]) {
+__efficient___opt static void stbiw__jpg_prepare_UY_tables(
+    int quality, unsigned char UVTable[64], unsigned char YTable[64])
+{
+#ifdef EFF_BLD_HAND_OPTIMIZED
 #define DIV_100(x) (((x) * 2622) >> 18)
+#else
+#define DIV_100(x) ((x) / 100)
+#endif
 
-    for (int i = 0; i < 64; i += 3) {
+    for (int i = 0; i < 64; i += 3)
+    {
         int uvti, yti = DIV_100(YQT[i] * quality + 50);
         YTable[stbiw__jpg_ZigZag[i]] = (unsigned char)(yti < 1     ? 1
                                                        : yti > 255 ? 255
@@ -496,7 +580,8 @@ __efficient__ static void stbiw__jpg_prepare_UY_tables(
                                                                      : uvti);
     }
 
-    for (int i = 1; i < 64; i += 3) {
+    for (int i = 1; i < 64; i += 3)
+    {
         int uvti, yti = DIV_100(YQT[i] * quality + 50);
         YTable[stbiw__jpg_ZigZag[i]] = (unsigned char)(yti < 1     ? 1
                                                        : yti > 255 ? 255
@@ -507,7 +592,8 @@ __efficient__ static void stbiw__jpg_prepare_UY_tables(
                                                                      : uvti);
     }
 
-    for (int i = 2; i < 64; i += 3) {
+    for (int i = 2; i < 64; i += 3)
+    {
         int uvti, yti = DIV_100(YQT[i] * quality + 50);
         YTable[stbiw__jpg_ZigZag[i]] = (unsigned char)(yti < 1     ? 1
                                                        : yti > 255 ? 255
@@ -526,14 +612,17 @@ static const int32_t aasf_quant[] = {
     308248, 427553, 402746, 362462, 308248, 242189, 166823, 85045,
     262143, 363604, 342507, 308248, 262143, 205965, 141871, 72325,
     205965, 285681, 269106, 242189, 205965, 161825, 111467, 56825,
-    141871, 196781, 185363, 166823, 141871, 111467, 76780,  39142,
-    72325,  100318, 94497,  85045,  72325,  56825,  39142,  19954};
+    141871, 196781, 185363, 166823, 141871, 111467, 76780, 39142,
+    72325, 100318, 94497, 85045, 72325, 56825, 39142, 19954};
 
-__efficient__ static void stbiw__jpg_prepare_fdtbl(
+__efficient___opt static void stbiw__jpg_prepare_fdtbl(
     unsigned char UVTable[64], unsigned char YTable[64],
-    fixed_point fdtbl_Y[64], fixed_point fdtbl_UV[64], fixed_point zero) {
-    for (int row = 0; row < 8; ++row) {
-        for (int col = 0; col < 8; ++col) {
+    fixed_point fdtbl_Y[64], fixed_point fdtbl_UV[64], fixed_point zero)
+{
+    for (int row = 0; row < 8; ++row)
+    {
+        for (int col = 0; col < 8; ++col)
+        {
             int k = 8 * row + col;
 
 #define QUANT_FRAC 15
@@ -559,39 +648,47 @@ __efficient__ static void stbiw__jpg_prepare_fdtbl(
     }
 }
 
-__efficient__ static void stbiw__jpg_process_dct_rows_16(
+__efficient___opt static void stbiw__jpg_process_dct_rows_16(
     int subIterCount, fixed_point Ys[][256], fixed_point subUs[][64],
-    fixed_point subVs[][64]) {
-    for (int j = 0; j < subIterCount * 6; j++) {
-        int32_t div6 = ((uint32_t)j * 2796203) >> 24;  // magic division!
+    fixed_point subVs[][64])
+{
+    for (int j = 0; j < subIterCount * 6; j++)
+    {
+        int32_t div6 = ((uint32_t)j * 2796203) >> 24; // magic division!
         int32_t mod6 = j - 6 * div6;
 
         int duStride;
         fixed_point *CDU;
 
-        if (mod6 < 4) {
+        if (mod6 < 4)
+        {
             // Greyscale DUs
             CDU = Ys[div6] +
                   (mod6 > 1 ? (mod6 == 2 ? 128 : 136) : (mod6 == 0 ? 0 : 8));
             duStride = 16;
-        } else {
+        }
+        else
+        {
             // Color DUs
             CDU = mod6 == 4 ? subUs[div6] : subVs[div6];
             duStride = 8;
         }
 
-        __effcc_parallel(1) for (int y = 0; y < duStride * 8; y += duStride) {
+        __effcc_parallel(1) for (int y = 0; y < duStride * 8; y += duStride)
+        {
             stbiw__jpg_DCT(CDU + y, CDU + y + 1, CDU + y + 2, CDU + y + 3,
                            CDU + y + 4, CDU + y + 5, CDU + y + 6, CDU + y + 7);
         }
     }
 }
 
-__efficient__ static void stbiw__jpg_process_dct_rows_8(
+__efficient___opt static void stbiw__jpg_process_dct_rows_8(
     int subIterCount, fixed_point Ys[][64], fixed_point subUs[][64],
-    fixed_point subVs[][64]) {
-    for (int j = 0; j < subIterCount * 3; j++) {
-        int32_t div3 = ((uint32_t)j * 5592406) >> 24;  // magic division!
+    fixed_point subVs[][64])
+{
+    for (int j = 0; j < subIterCount * 3; j++)
+    {
+        int32_t div3 = ((uint32_t)j * 5592406) >> 24; // magic division!
         int32_t mod3 = j - 3 * div3;
 
         int duStride = 8;
@@ -599,35 +696,42 @@ __efficient__ static void stbiw__jpg_process_dct_rows_8(
 
         CDU = mod3 == 0 ? Ys[div3] : (mod3 == 1 ? subUs[div3] : subVs[div3]);
 
-        __effcc_parallel(1) for (int y = 0; y < duStride * 8; y += duStride) {
+        __effcc_parallel(1) for (int y = 0; y < duStride * 8; y += duStride)
+        {
             stbiw__jpg_DCT(CDU + y, CDU + y + 1, CDU + y + 2, CDU + y + 3,
                            CDU + y + 4, CDU + y + 5, CDU + y + 6, CDU + y + 7);
         }
     }
 }
 
-__efficient__ static void stbiw__jpg_process_dct_cols_16(
+__efficient___opt static void stbiw__jpg_process_dct_cols_16(
     int subIterCount, fixed_point Ys[][256], fixed_point subUs[][64],
-    fixed_point subVs[][64]) {
-    for (int j = 0; j < subIterCount * 6; j++) {
-        int32_t div6 = ((uint32_t)j * 2796203) >> 24;  // magic division!
+    fixed_point subVs[][64])
+{
+    for (int j = 0; j < subIterCount * 6; j++)
+    {
+        int32_t div6 = ((uint32_t)j * 2796203) >> 24; // magic division!
         int32_t mod6 = j - 6 * div6;
 
         int duStride;
         fixed_point *CDU;
 
-        if (mod6 < 4) {
+        if (mod6 < 4)
+        {
             // Greyscale DUs
             CDU = Ys[div6] +
                   (mod6 > 1 ? (mod6 == 2 ? 128 : 136) : (mod6 == 0 ? 0 : 8));
             duStride = 16;
-        } else {
+        }
+        else
+        {
             // Color DUs
             CDU = mod6 == 4 ? subUs[div6] : subVs[div6];
             duStride = 8;
         }
 
-        __effcc_parallel(1) for (int x = 0; x < 8; x++) {
+        __effcc_parallel(1) for (int x = 0; x < 8; x++)
+        {
             stbiw__jpg_DCT(CDU + x, CDU + x + duStride, CDU + x + duStride * 2,
                            CDU + x + duStride * 3, CDU + x + duStride * 4,
                            CDU + x + duStride * 5, CDU + x + duStride * 6,
@@ -636,11 +740,13 @@ __efficient__ static void stbiw__jpg_process_dct_cols_16(
     }
 }
 
-__efficient__ static void stbiw__jpg_process_dct_cols_8(
+__efficient___opt static void stbiw__jpg_process_dct_cols_8(
     int subIterCount, fixed_point Ys[][64], fixed_point subUs[][64],
-    fixed_point subVs[][64]) {
-    for (int j = 0; j < subIterCount * 3; j++) {
-        int32_t div3 = ((uint32_t)j * 5592406) >> 24;  // magic division!
+    fixed_point subVs[][64])
+{
+    for (int j = 0; j < subIterCount * 3; j++)
+    {
+        int32_t div3 = ((uint32_t)j * 5592406) >> 24; // magic division!
         int32_t mod3 = j - 3 * div3;
 
         int duStride = 8;
@@ -648,7 +754,8 @@ __efficient__ static void stbiw__jpg_process_dct_cols_8(
 
         CDU = mod3 == 0 ? Ys[div3] : (mod3 == 1 ? subUs[div3] : subVs[div3]);
 
-        __effcc_parallel(1) for (int x = 0; x < 8; x++) {
+        __effcc_parallel(1) for (int x = 0; x < 8; x++)
+        {
             stbiw__jpg_DCT(CDU + x, CDU + x + duStride, CDU + x + duStride * 2,
                            CDU + x + duStride * 3, CDU + x + duStride * 4,
                            CDU + x + duStride * 5, CDU + x + duStride * 6,
@@ -657,25 +764,30 @@ __efficient__ static void stbiw__jpg_process_dct_cols_8(
     }
 }
 
-__efficient__ void stbiw__jpg_complete_du_16(
+__efficient___opt void stbiw__jpg_complete_du_16(
     int subIterCount, fixed_point Ys[][256], fixed_point subUs[][64],
     fixed_point subVs[][64], fixed_point fdtbl_Y[64], fixed_point fdtbl_UV[64],
-    int lastNonZeroIdxes[][6], int32_t DUs[][6][64]) {
-    for (int j = 0; j < subIterCount * 6; j++) {
-        int32_t div6 = ((uint32_t)j * 2796203) >> 24;  // magic division!
+    int lastNonZeroIdxes[][6], int32_t DUs[][6][64])
+{
+    for (int j = 0; j < subIterCount * 6; j++)
+    {
+        int32_t div6 = ((uint32_t)j * 2796203) >> 24; // magic division!
         int32_t mod6 = j - 6 * div6;
 
         int duStride;
         fixed_point *fdtbl;
         fixed_point *CDU;
 
-        if (mod6 < 4) {
+        if (mod6 < 4)
+        {
             // Greyscale DUs
             CDU = Ys[div6] +
                   (mod6 > 1 ? (mod6 == 2 ? 128 : 136) : (mod6 == 0 ? 0 : 8));
             duStride = 16;
             fdtbl = fdtbl_Y;
-        } else {
+        }
+        else
+        {
             // Color DUs
             CDU = mod6 == 4 ? subUs[div6] : subVs[div6];
             duStride = 8;
@@ -688,12 +800,14 @@ __efficient__ void stbiw__jpg_complete_du_16(
     }
 }
 
-__efficient__ void stbiw__jpg_complete_du_8(
+__efficient___opt void stbiw__jpg_complete_du_8(
     int subIterCount, fixed_point Ys[][64], fixed_point subUs[][64],
     fixed_point subVs[][64], fixed_point fdtbl_Y[64], fixed_point fdtbl_UV[64],
-    int lastNonZeroIdxes[][3], int32_t DUs[][3][64]) {
-    for (int j = 0; j < subIterCount * 3; j++) {
-        int32_t div3 = ((uint32_t)j * 5592406) >> 24;  // magic division!
+    int lastNonZeroIdxes[][3], int32_t DUs[][3][64])
+{
+    for (int j = 0; j < subIterCount * 3; j++)
+    {
+        int32_t div3 = ((uint32_t)j * 5592406) >> 24; // magic division!
         int32_t mod3 = j - 3 * div3;
 
         int duStride = 8;
@@ -712,7 +826,7 @@ __efficient__ void stbiw__jpg_complete_du_8(
 
 static const unsigned char std_dc_luminance_nrcodes[] = {
     0, 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0};
-static const unsigned char std_dc_luminance_values[] = {0, 1, 2, 3, 4,  5,
+static const unsigned char std_dc_luminance_values[] = {0, 1, 2, 3, 4, 5,
                                                         6, 7, 8, 9, 10, 11};
 static const unsigned char std_ac_luminance_nrcodes[] = {
     0, 0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 0x7d};
@@ -733,7 +847,7 @@ static const unsigned char std_ac_luminance_values[] = {
     0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa};
 static const unsigned char std_dc_chrominance_nrcodes[] = {
     0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0};
-static const unsigned char std_dc_chrominance_values[] = {0, 1, 2, 3, 4,  5,
+static const unsigned char std_dc_chrominance_values[] = {0, 1, 2, 3, 4, 5,
                                                           6, 7, 8, 9, 10, 11};
 static const unsigned char std_ac_chrominance_nrcodes[] = {
     0, 0, 2, 1, 2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 0x77};
@@ -754,151 +868,51 @@ static const unsigned char std_ac_chrominance_values[] = {
     0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa};
 // Huffman tables
 static const unsigned short YDC_HT[256][2] = {
-    {0, 2},  {2, 3},  {3, 3},  {4, 3},   {5, 3},   {6, 3},
-    {14, 4}, {30, 5}, {62, 6}, {126, 7}, {254, 8}, {510, 9}};
+    {0, 2}, {2, 3}, {3, 3}, {4, 3}, {5, 3}, {6, 3}, {14, 4}, {30, 5}, {62, 6}, {126, 7}, {254, 8}, {510, 9}};
 static const unsigned short UVDC_HT[256][2] = {
-    {0, 2},  {1, 2},   {2, 2},   {6, 3},   {14, 4},    {30, 5},
-    {62, 6}, {126, 7}, {254, 8}, {510, 9}, {1022, 10}, {2046, 11}};
+    {0, 2}, {1, 2}, {2, 2}, {6, 3}, {14, 4}, {30, 5}, {62, 6}, {126, 7}, {254, 8}, {510, 9}, {1022, 10}, {2046, 11}};
 static const unsigned short YAC_HT[256][2] = {
-    {10, 4},     {0, 2},      {1, 2},      {4, 3},      {11, 4},
-    {26, 5},     {120, 7},    {248, 8},    {1014, 10},  {65410, 16},
-    {65411, 16}, {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {12, 4},     {27, 5},     {121, 7},
-    {502, 9},    {2038, 11},  {65412, 16}, {65413, 16}, {65414, 16},
-    {65415, 16}, {65416, 16}, {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {28, 5},     {249, 8},
-    {1015, 10},  {4084, 12},  {65417, 16}, {65418, 16}, {65419, 16},
-    {65420, 16}, {65421, 16}, {65422, 16}, {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {58, 6},
-    {503, 9},    {4085, 12},  {65423, 16}, {65424, 16}, {65425, 16},
-    {65426, 16}, {65427, 16}, {65428, 16}, {65429, 16}, {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {59, 6},     {1016, 10},  {65430, 16}, {65431, 16}, {65432, 16},
-    {65433, 16}, {65434, 16}, {65435, 16}, {65436, 16}, {65437, 16},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {122, 7},    {2039, 11},  {65438, 16}, {65439, 16},
-    {65440, 16}, {65441, 16}, {65442, 16}, {65443, 16}, {65444, 16},
-    {65445, 16}, {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {123, 7},    {4086, 12},  {65446, 16},
-    {65447, 16}, {65448, 16}, {65449, 16}, {65450, 16}, {65451, 16},
-    {65452, 16}, {65453, 16}, {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {250, 8},    {4087, 12},
-    {65454, 16}, {65455, 16}, {65456, 16}, {65457, 16}, {65458, 16},
-    {65459, 16}, {65460, 16}, {65461, 16}, {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {504, 9},
-    {32704, 15}, {65462, 16}, {65463, 16}, {65464, 16}, {65465, 16},
-    {65466, 16}, {65467, 16}, {65468, 16}, {65469, 16}, {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {505, 9},    {65470, 16}, {65471, 16}, {65472, 16}, {65473, 16},
-    {65474, 16}, {65475, 16}, {65476, 16}, {65477, 16}, {65478, 16},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {506, 9},    {65479, 16}, {65480, 16}, {65481, 16},
-    {65482, 16}, {65483, 16}, {65484, 16}, {65485, 16}, {65486, 16},
-    {65487, 16}, {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {1017, 10},  {65488, 16}, {65489, 16},
-    {65490, 16}, {65491, 16}, {65492, 16}, {65493, 16}, {65494, 16},
-    {65495, 16}, {65496, 16}, {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {1018, 10},  {65497, 16},
-    {65498, 16}, {65499, 16}, {65500, 16}, {65501, 16}, {65502, 16},
-    {65503, 16}, {65504, 16}, {65505, 16}, {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {2040, 11},
-    {65506, 16}, {65507, 16}, {65508, 16}, {65509, 16}, {65510, 16},
-    {65511, 16}, {65512, 16}, {65513, 16}, {65514, 16}, {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {65515, 16}, {65516, 16}, {65517, 16}, {65518, 16}, {65519, 16},
-    {65520, 16}, {65521, 16}, {65522, 16}, {65523, 16}, {65524, 16},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {2041, 11},  {65525, 16}, {65526, 16}, {65527, 16}, {65528, 16},
-    {65529, 16}, {65530, 16}, {65531, 16}, {65532, 16}, {65533, 16},
-    {65534, 16}, {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {0, 0}};
+    {10, 4}, {0, 2}, {1, 2}, {4, 3}, {11, 4}, {26, 5}, {120, 7}, {248, 8}, {1014, 10}, {65410, 16}, {65411, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {12, 4}, {27, 5}, {121, 7}, {502, 9}, {2038, 11}, {65412, 16}, {65413, 16}, {65414, 16}, {65415, 16}, {65416, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {28, 5}, {249, 8}, {1015, 10}, {4084, 12}, {65417, 16}, {65418, 16}, {65419, 16}, {65420, 16}, {65421, 16}, {65422, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {58, 6}, {503, 9}, {4085, 12}, {65423, 16}, {65424, 16}, {65425, 16}, {65426, 16}, {65427, 16}, {65428, 16}, {65429, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {59, 6}, {1016, 10}, {65430, 16}, {65431, 16}, {65432, 16}, {65433, 16}, {65434, 16}, {65435, 16}, {65436, 16}, {65437, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {122, 7}, {2039, 11}, {65438, 16}, {65439, 16}, {65440, 16}, {65441, 16}, {65442, 16}, {65443, 16}, {65444, 16}, {65445, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {123, 7}, {4086, 12}, {65446, 16}, {65447, 16}, {65448, 16}, {65449, 16}, {65450, 16}, {65451, 16}, {65452, 16}, {65453, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {250, 8}, {4087, 12}, {65454, 16}, {65455, 16}, {65456, 16}, {65457, 16}, {65458, 16}, {65459, 16}, {65460, 16}, {65461, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {504, 9}, {32704, 15}, {65462, 16}, {65463, 16}, {65464, 16}, {65465, 16}, {65466, 16}, {65467, 16}, {65468, 16}, {65469, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {505, 9}, {65470, 16}, {65471, 16}, {65472, 16}, {65473, 16}, {65474, 16}, {65475, 16}, {65476, 16}, {65477, 16}, {65478, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {506, 9}, {65479, 16}, {65480, 16}, {65481, 16}, {65482, 16}, {65483, 16}, {65484, 16}, {65485, 16}, {65486, 16}, {65487, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1017, 10}, {65488, 16}, {65489, 16}, {65490, 16}, {65491, 16}, {65492, 16}, {65493, 16}, {65494, 16}, {65495, 16}, {65496, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1018, 10}, {65497, 16}, {65498, 16}, {65499, 16}, {65500, 16}, {65501, 16}, {65502, 16}, {65503, 16}, {65504, 16}, {65505, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {2040, 11}, {65506, 16}, {65507, 16}, {65508, 16}, {65509, 16}, {65510, 16}, {65511, 16}, {65512, 16}, {65513, 16}, {65514, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {65515, 16}, {65516, 16}, {65517, 16}, {65518, 16}, {65519, 16}, {65520, 16}, {65521, 16}, {65522, 16}, {65523, 16}, {65524, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {2041, 11}, {65525, 16}, {65526, 16}, {65527, 16}, {65528, 16}, {65529, 16}, {65530, 16}, {65531, 16}, {65532, 16}, {65533, 16}, {65534, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
 static const unsigned short UVAC_HT[256][2] = {
-    {0, 2},      {1, 2},      {4, 3},      {10, 4},     {24, 5},
-    {25, 5},     {56, 6},     {120, 7},    {500, 9},    {1014, 10},
-    {4084, 12},  {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {11, 4},     {57, 6},     {246, 8},
-    {501, 9},    {2038, 11},  {4085, 12},  {65416, 16}, {65417, 16},
-    {65418, 16}, {65419, 16}, {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {26, 5},     {247, 8},
-    {1015, 10},  {4086, 12},  {32706, 15}, {65420, 16}, {65421, 16},
-    {65422, 16}, {65423, 16}, {65424, 16}, {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {27, 5},
-    {248, 8},    {1016, 10},  {4087, 12},  {65425, 16}, {65426, 16},
-    {65427, 16}, {65428, 16}, {65429, 16}, {65430, 16}, {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {58, 6},     {502, 9},    {65431, 16}, {65432, 16}, {65433, 16},
-    {65434, 16}, {65435, 16}, {65436, 16}, {65437, 16}, {65438, 16},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {59, 6},     {1017, 10},  {65439, 16}, {65440, 16},
-    {65441, 16}, {65442, 16}, {65443, 16}, {65444, 16}, {65445, 16},
-    {65446, 16}, {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {121, 7},    {2039, 11},  {65447, 16},
-    {65448, 16}, {65449, 16}, {65450, 16}, {65451, 16}, {65452, 16},
-    {65453, 16}, {65454, 16}, {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {122, 7},    {2040, 11},
-    {65455, 16}, {65456, 16}, {65457, 16}, {65458, 16}, {65459, 16},
-    {65460, 16}, {65461, 16}, {65462, 16}, {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {249, 8},
-    {65463, 16}, {65464, 16}, {65465, 16}, {65466, 16}, {65467, 16},
-    {65468, 16}, {65469, 16}, {65470, 16}, {65471, 16}, {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {503, 9},    {65472, 16}, {65473, 16}, {65474, 16}, {65475, 16},
-    {65476, 16}, {65477, 16}, {65478, 16}, {65479, 16}, {65480, 16},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {504, 9},    {65481, 16}, {65482, 16}, {65483, 16},
-    {65484, 16}, {65485, 16}, {65486, 16}, {65487, 16}, {65488, 16},
-    {65489, 16}, {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {505, 9},    {65490, 16}, {65491, 16},
-    {65492, 16}, {65493, 16}, {65494, 16}, {65495, 16}, {65496, 16},
-    {65497, 16}, {65498, 16}, {0, 0},      {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {506, 9},    {65499, 16},
-    {65500, 16}, {65501, 16}, {65502, 16}, {65503, 16}, {65504, 16},
-    {65505, 16}, {65506, 16}, {65507, 16}, {0, 0},      {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {2041, 11},
-    {65508, 16}, {65509, 16}, {65510, 16}, {65511, 16}, {65512, 16},
-    {65513, 16}, {65514, 16}, {65515, 16}, {65516, 16}, {0, 0},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {16352, 14}, {65517, 16}, {65518, 16}, {65519, 16}, {65520, 16},
-    {65521, 16}, {65522, 16}, {65523, 16}, {65524, 16}, {65525, 16},
-    {0, 0},      {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {1018, 10},  {32707, 15}, {65526, 16}, {65527, 16}, {65528, 16},
-    {65529, 16}, {65530, 16}, {65531, 16}, {65532, 16}, {65533, 16},
-    {65534, 16}, {0, 0},      {0, 0},      {0, 0},      {0, 0},
-    {0, 0}};
+    {0, 2}, {1, 2}, {4, 3}, {10, 4}, {24, 5}, {25, 5}, {56, 6}, {120, 7}, {500, 9}, {1014, 10}, {4084, 12}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {11, 4}, {57, 6}, {246, 8}, {501, 9}, {2038, 11}, {4085, 12}, {65416, 16}, {65417, 16}, {65418, 16}, {65419, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {26, 5}, {247, 8}, {1015, 10}, {4086, 12}, {32706, 15}, {65420, 16}, {65421, 16}, {65422, 16}, {65423, 16}, {65424, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {27, 5}, {248, 8}, {1016, 10}, {4087, 12}, {65425, 16}, {65426, 16}, {65427, 16}, {65428, 16}, {65429, 16}, {65430, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {58, 6}, {502, 9}, {65431, 16}, {65432, 16}, {65433, 16}, {65434, 16}, {65435, 16}, {65436, 16}, {65437, 16}, {65438, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {59, 6}, {1017, 10}, {65439, 16}, {65440, 16}, {65441, 16}, {65442, 16}, {65443, 16}, {65444, 16}, {65445, 16}, {65446, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {121, 7}, {2039, 11}, {65447, 16}, {65448, 16}, {65449, 16}, {65450, 16}, {65451, 16}, {65452, 16}, {65453, 16}, {65454, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {122, 7}, {2040, 11}, {65455, 16}, {65456, 16}, {65457, 16}, {65458, 16}, {65459, 16}, {65460, 16}, {65461, 16}, {65462, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {249, 8}, {65463, 16}, {65464, 16}, {65465, 16}, {65466, 16}, {65467, 16}, {65468, 16}, {65469, 16}, {65470, 16}, {65471, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {503, 9}, {65472, 16}, {65473, 16}, {65474, 16}, {65475, 16}, {65476, 16}, {65477, 16}, {65478, 16}, {65479, 16}, {65480, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {504, 9}, {65481, 16}, {65482, 16}, {65483, 16}, {65484, 16}, {65485, 16}, {65486, 16}, {65487, 16}, {65488, 16}, {65489, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {505, 9}, {65490, 16}, {65491, 16}, {65492, 16}, {65493, 16}, {65494, 16}, {65495, 16}, {65496, 16}, {65497, 16}, {65498, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {506, 9}, {65499, 16}, {65500, 16}, {65501, 16}, {65502, 16}, {65503, 16}, {65504, 16}, {65505, 16}, {65506, 16}, {65507, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {2041, 11}, {65508, 16}, {65509, 16}, {65510, 16}, {65511, 16}, {65512, 16}, {65513, 16}, {65514, 16}, {65515, 16}, {65516, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {16352, 14}, {65517, 16}, {65518, 16}, {65519, 16}, {65520, 16}, {65521, 16}, {65522, 16}, {65523, 16}, {65524, 16}, {65525, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1018, 10}, {32707, 15}, {65526, 16}, {65527, 16}, {65528, 16}, {65529, 16}, {65530, 16}, {65531, 16}, {65532, 16}, {65533, 16}, {65534, 16}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
 
-static int stbi_write_jpg_core(stbi__write_context *s,
-                                                   int width, int height,
-                                                   int comp, const void *data,
-                                                   int quality,
-                                                   fixed_point zero) {
+__efficient___naive static int stbi_write_jpg_core(stbi__write_context *s,
+                               int width, int height,
+                               int comp, const void *data,
+                               int quality,
+                               fixed_point zero)
+{
     int row, col, i, k, subsample;
     fixed_point fdtbl_Y[64], fdtbl_UV[64];
     unsigned char YTable[64], UVTable[64];
 
-    if (!data || !width || !height || comp > 4 || comp < 1) {
+    if (!data || !width || !height || comp > 4 || comp < 1)
+    {
         return 0;
     }
 
     quality = quality ? quality : 90;
     subsample = quality <= 90 ? 1 : 0;
-    quality = quality < 1 ? 1 : quality > 100 ? 100 : quality;
+    quality = quality < 1 ? 1 : quality > 100 ? 100
+                                              : quality;
     quality = quality < 50 ? 5000 / quality : 200 - quality * 2;
 
     stbiw__jpg_prepare_UY_tables(quality, UVTable, YTable);
 
     stbiw__jpg_prepare_fdtbl(UVTable, YTable, fdtbl_Y, fdtbl_UV, zero);
 
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < 64; i++)
+    {
         stbiw__jpg_ZigZag_inv[stbiw__jpg_ZigZag[i]] = i;
     }
 
     // Write Headers
     {
         static const unsigned char head0[] = {
-            0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 'J', 'F',  'I',  'F', 0,    1, 1,
-            0,    0,    1,    0,    1, 0,    0,   0xFF, 0xDB, 0,   0x84, 0};
-        static const unsigned char head2[] = {0xFF, 0xDA, 0, 0xC,  3, 1,    0,
-                                              2,    0x11, 3, 0x11, 0, 0x3F, 0};
+            0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 'J', 'F', 'I', 'F', 0, 1, 1,
+            0, 0, 1, 0, 1, 0, 0, 0xFF, 0xDB, 0, 0x84, 0};
+        static const unsigned char head2[] = {0xFF, 0xDA, 0, 0xC, 3, 1, 0,
+                                              2, 0x11, 3, 0x11, 0, 0x3F, 0};
         const unsigned char head1[] = {0xFF,
                                        0xC0,
                                        0,
@@ -932,17 +946,17 @@ static int stbi_write_jpg_core(stbi__write_context *s,
                           sizeof(std_dc_luminance_nrcodes) - 1);
         stbi__stdio_write(s->context, (void *)std_dc_luminance_values,
                           sizeof(std_dc_luminance_values));
-        stbiw__putc(s, 0x10);  // HTYACinfo
+        stbiw__putc(s, 0x10); // HTYACinfo
         stbi__stdio_write(s->context, (void *)(std_ac_luminance_nrcodes + 1),
                           sizeof(std_ac_luminance_nrcodes) - 1);
         stbi__stdio_write(s->context, (void *)std_ac_luminance_values,
                           sizeof(std_ac_luminance_values));
-        stbiw__putc(s, 1);  // HTUDCinfo
+        stbiw__putc(s, 1); // HTUDCinfo
         stbi__stdio_write(s->context, (void *)(std_dc_chrominance_nrcodes + 1),
                           sizeof(std_dc_chrominance_nrcodes) - 1);
         stbi__stdio_write(s->context, (void *)std_dc_chrominance_values,
                           sizeof(std_dc_chrominance_values));
-        stbiw__putc(s, 0x11);  // HTUACinfo
+        stbiw__putc(s, 0x11); // HTUACinfo
         stbi__stdio_write(s->context, (void *)(std_ac_chrominance_nrcodes + 1),
                           sizeof(std_ac_chrominance_nrcodes) - 1);
         stbi__stdio_write(s->context, (void *)std_ac_chrominance_values,
@@ -961,13 +975,15 @@ static int stbi_write_jpg_core(stbi__write_context *s,
         const unsigned char *dataG = dataR + ofsG;
         const unsigned char *dataB = dataR + ofsB;
         int pos;
-        if (subsample) {
-#define BLOCK_SIZE 8  // may not be larger than 42
+        if (subsample)
+        {
+#define BLOCK_SIZE 8 // may not be larger than 42
             int numIterW = ((width + 15) / 16);
             int numIterH = ((height + 15) / 16);
             int numIter = numIterW * numIterH;
 
-            for (int i = 0; i < numIter; i += BLOCK_SIZE) {
+            for (int i = 0; i < numIter; i += BLOCK_SIZE)
+            {
                 static fixed_point Ys[BLOCK_SIZE][256];
                 static fixed_point Us[BLOCK_SIZE][256];
                 static fixed_point Vs[BLOCK_SIZE][256];
@@ -999,7 +1015,8 @@ static int stbi_write_jpg_core(stbi__write_context *s,
 
                 int filePos = output_arr_length;
 
-                for (int j = 0; j < subIterCount; j++) {
+                for (int j = 0; j < subIterCount; j++)
+                {
                     DCY = stbiw__jpg_encode_DC_AC(
                         s, &bitBuf, &bitCnt, DUs[j][0], DCY, YDC_HT, YAC_HT,
                         &filePos, lastNonZeroIdxes[j][0]);
@@ -1022,13 +1039,16 @@ static int stbi_write_jpg_core(stbi__write_context *s,
 
                 output_arr_length = filePos;
             }
-        } else {
-#define BLOCK_SIZE 8  // may not be larger than 42
+        }
+        else
+        {
+#define BLOCK_SIZE 8 // may not be larger than 42
             int numIterW = ((width + 7) / 8);
             int numIterH = ((height + 7) / 8);
             int numIter = numIterW * numIterH;
 
-            for (int i = 0; i < numIter; i += BLOCK_SIZE) {
+            for (int i = 0; i < numIter; i += BLOCK_SIZE)
+            {
                 static fixed_point Ys[BLOCK_SIZE][64];
                 static fixed_point Us[BLOCK_SIZE][64];
                 static fixed_point Vs[BLOCK_SIZE][64];
@@ -1054,7 +1074,8 @@ static int stbi_write_jpg_core(stbi__write_context *s,
 
                 int filePos = output_arr_length;
 
-                for (int j = 0; j < subIterCount; j++) {
+                for (int j = 0; j < subIterCount; j++)
+                {
                     DCY = stbiw__jpg_encode_DC_AC(
                         s, &bitBuf, &bitCnt, DUs[j][0], DCY, YDC_HT, YAC_HT,
                         &filePos, lastNonZeroIdxes[j][0]);
@@ -1082,12 +1103,15 @@ static int stbi_write_jpg_core(stbi__write_context *s,
     return 1;
 }
 
-int stbi_write_jpg(int x, int y, int comp, const void *data, int quality) {
+int stbi_write_jpg(int x, int y, int comp, const void *data, int quality)
+{
     stbi__write_context s = {0};
-    if (stbi__start_write_file(&s)) {
+    if (stbi__start_write_file(&s))
+    {
         int r = stbi_write_jpg_core(&s, x, y, comp, data, quality, 0);
         stbi__end_write_file(&s);
         return r;
-    } else
+    }
+    else
         return 0;
 }
