@@ -13,7 +13,11 @@
 #define SAMP_MAX 32767
 #define FRACBITS 15
 
-#ifdef EFF_BLD_HAND_OPTIMIZED
+// The hand-optimized kernel packs sample pairs into uint32 accesses, which the
+// Fabric maps into its dataflow efficiently. On the RISC-V scalar core those
+// 32-bit accesses would be misaligned against the 2-byte-aligned buffers, so
+// the scalar build uses the plain per-sample reference kernel below instead.
+#if defined(EFF_BLD_HAND_OPTIMIZED) && !defined(EFF_BLD_SCALAR)
 __efficient__ void biquad_filter_q15(const int16_t *input, int16_t *output,
                                      int length, const int32_t p1,
                                      const int32_t p2, const int32_t z0,

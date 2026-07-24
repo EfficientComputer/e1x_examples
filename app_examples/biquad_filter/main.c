@@ -7,7 +7,14 @@
 #include <stdio.h>
 #include "biquad_filter.h"
 
-#define NUM_ITERATIONS 1
+// Number of times the measured region runs. The biquad kernel is short relative
+// to the EVK sample period (25 ms on early EVK firmware), so it is run in a loop
+// and the measured runtime and energy are divided by this count in
+// post-processing. Pass the same value to process-energy.py via --iters.
+//
+// This is a starting point: if the measured region does not run comfortably
+// longer than the sample period, increase NUM_ITERATIONS and measure again.
+#define NUM_ITERATIONS 1000
 
 // If changed, the CMakeLists.txt file will need to be updated so
 // gen_data.py follows the new size
@@ -25,12 +32,34 @@ _Alignas(2) int16_t output[INPUT_SIZE];
 
 int main()
 {
+#ifdef __EFFCC__
+    // Configure AON4 as a GPIO output so the EVK can mark the measured region.
+    // The on-board RP2040 monitors AON4/AON5; AON4 is the usual profiling pin
+    // (AON0-AON3 are reserved for the programmer interface).
+    eff_pinmux_set(PINMUX_AON, PINMUX_GPIO);
+    eff_gpio_dir_set(GPIO_AON, GPIO_PIN_4, EFF_GPIO_OUT);
+
+    // Hold AON4 high long enough for the EVK sampler to observe the high level.
+    // Otherwise, if AON4 starts low after reset, the RP2040 can miss the falling
+    // edge that marks the start of the measured region.
+    eff_gpio_set(GPIO_AON, GPIO_PIN_4);
+    sleep(1);
+
+    // Falling edge marks the start of the measured region.
+    eff_gpio_clear(GPIO_AON, GPIO_PIN_4);
+#endif
+
     for (int iter = 0; iter < NUM_ITERATIONS; iter++)
     {
         biquad_filter(sample_input, output, INPUT_SIZE, poles_coeffs, zeros_coeffs);
     }
 
-    // Compute error
+#ifdef __EFFCC__
+    // Rising edge marks the end of the measured region.
+    eff_gpio_set(GPIO_AON, GPIO_PIN_4);
+#endif
+
+    // Compute error (outside the measured region)
     int32_t err = 0;
     for (int i = 100; i < INPUT_SIZE; i++)
     {
