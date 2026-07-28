@@ -4,7 +4,7 @@ This example computes a **single-channel 3x3 2D convolution** on the Electron E1
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a 3x3 convolution?
 
@@ -24,7 +24,7 @@ Each output value costs nine multiply-accumulate (MAC) operations, one per filte
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 3x3 convolution is one of the most widely used operations in image and signal processing:
 
@@ -37,7 +37,7 @@ Because the same small filter is applied everywhere and neighboring windows over
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -53,14 +53,14 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` and the app's `conv3x3.h` header control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition       | Default | Effect                                                                                                       |
 | ---------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
-| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.              |
-| `M`              | `64`    | The number of input rows (image height). Larger values mean a larger image and more output positions.        |
-| `N`              | `64`    | The number of input columns (image width). Larger values mean a larger image and more output positions.      |
-| `INSTRIDE`       | `N`     | The row stride of the input buffer in elements. It sets how far apart successive input rows are in memory.   |
-| `OUTSTRIDE`      | `N`     | The row stride of the output buffer in elements. It sets how far apart successive output rows are in memory. |
+| `NUM_ITERATIONS` | `1`     | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.              |
+| `M`              | `64`    | This is the number of input rows (image height). Larger values mean a larger image and more output positions.        |
+| `N`              | `64`    | This is the number of input columns (image width). Larger values mean a larger image and more output positions.      |
+| `INSTRIDE`       | `N`     | This is the row stride of the input buffer in elements. It sets how far apart successive input rows are in memory.   |
+| `OUTSTRIDE`      | `N`     | This is the row stride of the output buffer in elements. It sets how far apart successive output rows are in memory. |

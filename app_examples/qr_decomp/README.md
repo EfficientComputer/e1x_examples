@@ -4,7 +4,7 @@ This example computes a **QR decomposition** of a matrix on the Electron E1x gen
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a QR Decomposition?
 
@@ -34,7 +34,7 @@ Each column is processed in turn, and computing it depends on the columns finish
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 QR decomposition is one of the most widely used operations in numerical computing:
 
@@ -47,7 +47,7 @@ Because it mixes dot-product reductions, a square root, a division, and projecti
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -62,12 +62,12 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in the app headers control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition         | Default | Effect                                                                                                                                                                                                      |
 | ------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS`   | `1`     | How many times the kernel runs, set in `main.c`. Increase it to average out measurement noise when benchmarking.                                                                                            |
-| `INPUT_SIZE`       | `16`    | The matrix dimension `n` (the input is `n x n`), defined in `qr_decomp.h`. This sets the problem size: a larger value means a larger matrix and more work per run. The input is generated in `qr_decomp.c`. |
-| `FIXED_POINT_BITS` | `10`    | The number of fractional bits in the fixed-point format, defined in `qr.h`. It sets the trade-off between numeric range and precision. Changing it changes the scaling used throughout the kernel.          |
+| `NUM_ITERATIONS`   | `1`     | This is how many times the kernel runs, set in `main.c`. Increase it to average out measurement noise when benchmarking.                                                                                            |
+| `INPUT_SIZE`       | `16`    | This is the matrix dimension `n` (the input is `n x n`), defined in `qr_decomp.h`. This sets the problem size: a larger value means a larger matrix and more work per run. The input is generated in `qr_decomp.c`. |
+| `FIXED_POINT_BITS` | `10`    | This is the number of fractional bits in the fixed-point format, defined in `qr.h`. It sets the trade-off between numeric range and precision. Changing it changes the scaling used throughout the kernel.          |

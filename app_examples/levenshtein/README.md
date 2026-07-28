@@ -4,7 +4,7 @@ This example computes the **Levenshtein edit distance** between two strings on t
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is edit distance?
 
@@ -28,7 +28,7 @@ Where:
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Edit distance is a core building block in text and sequence processing:
 
@@ -42,7 +42,7 @@ It is a representative dynamic program whose work is dominated by comparisons an
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -57,15 +57,15 @@ The result is steady progress on a comparison-heavy dynamic program at low energ
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition       | Default | Effect                                                                                                                                                                      |
 | ---------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                             |
-| `len1`           | `28`    | The length of the first string. It must match the actual length of the `s1` literal.                                                                                        |
-| `len2`           | `27`    | The length of the second string. It must match the actual length of the `s2` literal.                                                                                       |
-| `EDIT_DISTANCE`  | `5`     | The expected edit distance the result is compared against for the pass/fail print. If you change the input strings, this must be updated to match the new correct distance. |
+| `NUM_ITERATIONS` | `1`     | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                             |
+| `len1`           | `28`    | This is the length of the first string. It must match the actual length of the `s1` literal.                                                                                        |
+| `len2`           | `27`    | This is the length of the second string. It must match the actual length of the `s2` literal.                                                                                       |
+| `EDIT_DISTANCE`  | `5`     | This is the expected edit distance the result is compared against for the pass/fail print. If you change the input strings, this must be updated to match the new correct distance. |
 
 The two input strings are hardcoded literals in `main.c`. You can edit these literals to compare different text, but if you do, update `len1` and `len2` to the new string lengths and update `EDIT_DISTANCE` to the new correct result.

@@ -4,7 +4,7 @@ This example performs a **breadth-first search** over a graph on the Electron E1
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is breadth-first search?
 
@@ -28,7 +28,7 @@ The output is the level array (the `frontier`), where each entry holds the disco
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Breadth-first search is a foundational graph operation that appears across many domains:
 
@@ -42,7 +42,7 @@ It is a good stress test for irregular, data-dependent workloads because the wor
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -57,14 +57,14 @@ The result is steady progress on an irregular, branch-heavy traversal at low ene
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition       | Default | Effect                                                                                                                                                                                 |
 | ---------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`     | How many times the traversal runs (in `main.c`). Increase it to average out measurement noise when benchmarking.                                                                       |
-| `BFS_NUM_VTX`    | `1000`  | The number of vertices in the graph, defined in `bfs.h`. This sets the problem size. It is also used as the "undiscovered" marker in the level array, so the graph data must match it. |
-| `BFS_NUM_EDGE`   | `10000` | The number of edges in the graph, defined in `bfs.h`. It sizes the neighbors array and must match the supplied graph data.                                                             |
+| `NUM_ITERATIONS` | `1`     | This is how many times the traversal runs (in `main.c`). Increase it to average out measurement noise when benchmarking.                                                                       |
+| `BFS_NUM_VTX`    | `1000`  | This is the number of vertices in the graph, defined in `bfs.h`. This sets the problem size. It is also used as the "undiscovered" marker in the level array, so the graph data must match it. |
+| `BFS_NUM_EDGE`   | `10000` | This is the number of edges in the graph, defined in `bfs.h`. It sizes the neighbors array and must match the supplied graph data.                                                             |
 
 The start vertex is a hardcoded literal in `main.c` (the traversal begins from vertex `2`). The graph itself (the `oa` offsets array and `na` neighbors array) is supplied from `bfs_graph.c`. The `final_frontier` array in `main.c` holds the expected discovery levels used for the pass/fail check. If you change the graph data, the start vertex, or the sizes, this expected result must be updated to match the new correct output.

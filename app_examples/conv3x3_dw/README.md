@@ -4,7 +4,7 @@ This example computes a **depthwise 3x3 convolution** on the Electron E1x genera
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a depthwise 3x3 convolution?
 
@@ -27,7 +27,7 @@ Each output value costs nine multiply-accumulate (MAC) operations, and there are
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Depthwise 3x3 convolution is a workhorse of modern efficient neural networks:
 
@@ -40,7 +40,7 @@ Because each channel is independent and the same small filter is reused across e
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -57,23 +57,23 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` and the app's `conv3x3_dw.h` header control the benchmark. Change them to resize the problem or re-run it. The optimized kernel is compared against a reference implementation, so correctness holds automatically when you resize.
 
 | Definition       | Default | Effect                                                                                          |
 | ---------------- | ------- | ----------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking. |
-| `M`              | `48`    | The number of input rows (image height).                                                        |
-| `N`              | `48`    | The number of input columns (image width).                                                      |
-| `NCHANNELS`      | `8`     | The number of channels. Each channel gets its own independent 3x3 filter.                       |
-| `KERNEL_DIM`     | `3`     | The filter side length. This kernel is specialized for 3x3 filters.                             |
-| `STRIDE_H`       | `1`     | The vertical stride between output positions.                                                   |
-| `STRIDE_W`       | `1`     | The horizontal stride between output positions.                                                 |
-| `PAD_TOP`        | `1`     | Rows of zero padding added at the top.                                                          |
-| `PAD_LEFT`       | `1`     | Columns of zero padding added on the left.                                                      |
-| `PAD_RIGHT`      | `1`     | Columns of zero padding added on the right.                                                     |
-| `PAD_BOTTOM`     | `1`     | Rows of zero padding added at the bottom.                                                       |
-| `OH`             | `M`     | The output height. With SAME padding and stride 1 it equals the input height.                   |
-| `OW`             | `N`     | The output width. With SAME padding and stride 1 it equals the input width.                     |
-| `OUT_MUL`        | `1`     | The output multiplier per channel (one output channel per input channel for depthwise).         |
+| `NUM_ITERATIONS` | `1`     | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking. |
+| `M`              | `48`    | The number of input rows (image height)                                                        |
+| `N`              | `48`    | The number of input columns (image width)                                                      |
+| `NCHANNELS`      | `8`     | This is the number of channels. Each channel gets its own independent 3x3 filter.                       |
+| `KERNEL_DIM`     | `3`     | This is the filter side length. This kernel is specialized for 3x3 filters.                             |
+| `STRIDE_H`       | `1`     | The vertical stride between output positions                                                   |
+| `STRIDE_W`       | `1`     | The horizontal stride between output positions                                                 |
+| `PAD_TOP`        | `1`     | Rows of zero padding added at the top                                                          |
+| `PAD_LEFT`       | `1`     | Columns of zero padding added on the left                                                      |
+| `PAD_RIGHT`      | `1`     | Columns of zero padding added on the right                                                     |
+| `PAD_BOTTOM`     | `1`     | Rows of zero padding added at the bottom                                                       |
+| `OH`             | `M`     | This is the output height. With SAME padding and stride 1 it equals the input height.                   |
+| `OW`             | `N`     | This is the output width. With SAME padding and stride 1 it equals the input width.                     |
+| `OUT_MUL`        | `1`     | The output multiplier per channel (one output channel per input channel for depthwise)         |

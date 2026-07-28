@@ -4,7 +4,7 @@ This example computes a **CRC-32 checksum** over a block of data on the Electron
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is CRC-32?
 
@@ -28,7 +28,7 @@ Where:
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 CRC-32 is one of the most widely deployed integrity checks in computing:
 
@@ -42,7 +42,7 @@ It is a good example of a bitwise, control-driven kernel: the work is shifts, ma
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -57,13 +57,13 @@ The result is efficient integrity checking at low energy, which is the metric th
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition       | Default | Effect                                                                                                                                                                                                          |
 | ---------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                 |
-| `LENGTH`         | `512`   | The size in bytes of the message buffer. This sets the problem size: a larger value means more bytes to fold in per run. The last byte is kept as a null terminator, so the checksum covers `LENGTH - 1` bytes. |
+| `NUM_ITERATIONS` | `1`     | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                 |
+| `LENGTH`         | `512`   | This is the size in bytes of the message buffer. This sets the problem size: a larger value means more bytes to fold in per run. The last byte is kept as a null terminator, so the checksum covers `LENGTH - 1` bytes. |
 
 The message is filled with pseudo-random data generated in `main.c` from a fixed seed (`123456789`), so the input is the same on every run. Changing `LENGTH` or the seed changes the input data and therefore the result.

@@ -1,6 +1,6 @@
 # E1x Examples
 
-Welcome to the E1x Examples repository! This collection of example applications is designed to help you get up and running quickly with the E1x processor and the E1x Evaluation Kit (EVK). Whether you're exploring E1x for the first time or building production applications, these examples provide a solid starting point and reference implementations that demonstrate best practices for developing on EFF hardware. Use them as templates for your own projects, or as building blocks to accelerate your development.
+Welcome to the E1x Examples repository! This collection of example applications is designed to help you get up and running quickly with the E1x processor and the E1x Evaluation Kit (EVK). Whether you're exploring E1x for the first time or building production applications, these examples provide a solid starting point and reference implementations that demonstrate best practices for developing on Efficient hardware. Use them as templates for your own projects, or as building blocks to accelerate your development.
 
 If you haven't already, please make sure you've set up your board and development environment using our [Evaluation Kit Setup Instructions](https://docs.efficient.computer/evaluation-kit).
 
@@ -8,7 +8,7 @@ If you haven't already, please make sure you've set up your board and developmen
 
 ## App Examples
 
-Optimized algorithm implementations demonstrating how to leverage E1x's architecture for real-world DSP, image processing, communications, and compute workloads. Each app includes complete source code with EFF-optimized kernels and correctness validation. This project supports both our physical EVK and our Cloud EVK.
+Optimized algorithm implementations demonstrating how to leverage E1x's architecture for real-world DSP, image processing, communications, and compute workloads. Each app includes complete source code with Efficient-optimized kernels and correctness validation. This project supports both our physical EVK and our Cloud EVK.
 
 - **bfs** - Breadth-First Search (Graph)
 - **biquad_filter** - Optimized Biquad IIR Filter (DSP)

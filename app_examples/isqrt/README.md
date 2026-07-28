@@ -4,7 +4,7 @@ This example computes the **integer square root** of a number on the Electron E1
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is an integer square root?
 
@@ -29,7 +29,7 @@ When `q` reaches its final step, `r` holds the exact integer square root.
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Integer square roots are needed wherever a magnitude must be computed without floating-point hardware:
 
@@ -43,7 +43,7 @@ It is a good example of a small, branch-driven integer kernel built entirely fro
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -58,12 +58,12 @@ The result is an exact square root with no division or floating point at low ene
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 This example has no problem-size macros. The kernel computes the integer square root of whatever value it is given.
 
 | Definition       | Default | Effect                                                                                                                 |
 | ---------------- | ------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`     | How many times the first test case runs (in `main.c`). Increase it to average out measurement noise when benchmarking. |
+| `NUM_ITERATIONS` | `1`     | This is how many times the first test case runs (in `main.c`). Increase it to average out measurement noise when benchmarking. |
 
 The inputs are hardcoded literals in `main.c`: the kernel is called on `16`, `1764`, and `20000`, and each result is checked against its expected value (`4`, `42`, and `141`). You can edit these literals to test different values, but if you do, update the expected results in the same checks to match the new correct answers.

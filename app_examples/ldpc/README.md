@@ -4,7 +4,7 @@ This example encodes and decodes a Low-Density Parity-Check error-correcting cod
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is an LDPC Code?
 
@@ -24,7 +24,7 @@ It stops early once the current bit decisions satisfy every parity check (the sy
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 LDPC codes deliver near-optimal error correction with practical decoding cost, so they are built into many communications and storage standards:
 
@@ -38,7 +38,7 @@ Because decoding combines sparse, irregular memory access with iterative message
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -54,19 +54,19 @@ The result is high error-correction throughput at low energy, which is the metri
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions and variables control the benchmark. The problem-size constants are `#define`s in `main.c`; the decoder controls are local variables in the `test()` function. Change them to use a different code, adjust decoding effort, or re-run the benchmark.
 
 | Definition                    | Default | Effect                                                                                                                                                        |
 | ----------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS`              | `1`     | How many times the decode kernel runs. Increase it to average out measurement noise when benchmarking.                                                        |
-| `MESSAGE_SIZE`                | `336`   | The number of message (information) bits. Set by the 802.11 rate-1/2 code used here.                                                                          |
-| `CODEWORD_SIZE`               | `672`   | The number of codeword bits (message plus parity). Set by the same rate-1/2 code.                                                                             |
-| `PARITY_NNZ`                  | `2184`  | The number of non-zero entries in the parity-check matrix H, in CSR form.                                                                                     |
-| `GENERATOR_NNZ`               | `8736`  | The number of non-zero entries in the generator matrix G, in CSR form.                                                                                        |
-| `MAX_CHECK_NODE_NNZ`          | `8`     | The maximum number of bits connected to any single check node, a property of this code's structure.                                                           |
-| `decoder_max_iterations`      | `16`    | The maximum number of decoding iterations before the decoder gives up. Higher values allow correcting more difficult error patterns at the cost of more work. |
-| `decoder_early_term_possible` | `true`  | Whether the decoder stops as soon as a valid codeword is found. Disabling it forces every iteration to run.                                                   |
+| `NUM_ITERATIONS`              | `1`     | This is how many times the decode kernel runs. Increase it to average out measurement noise when benchmarking.                                                        |
+| `MESSAGE_SIZE`                | `336`   | This is the number of message (information) bits, set by the 802.11 rate-1/2 code used here.                                                                          |
+| `CODEWORD_SIZE`               | `672`   | This is the number of codeword bits (message plus parity), set by the same rate-1/2 code.                                                                             |
+| `PARITY_NNZ`                  | `2184`  | The number of non-zero entries in the parity-check matrix H, in CSR form                                                                                     |
+| `GENERATOR_NNZ`               | `8736`  | The number of non-zero entries in the generator matrix G, in CSR form                                                                                        |
+| `MAX_CHECK_NODE_NNZ`          | `8`     | The maximum number of bits connected to any single check node, a property of this code's structure                                                           |
+| `decoder_max_iterations`      | `16`    | This is the maximum number of decoding iterations before the decoder gives up. Higher values allow correcting more difficult error patterns at the cost of more work. |
+| `decoder_early_term_possible` | `true`  | This is whether the decoder stops as soon as a valid codeword is found. Disabling it forces every iteration to run.                                                   |
 
 The parity-check and generator matrices (`H_80211`, `G_80211`, and their CSR views) are fixed data for the 802.11 rate-1/2 code and are generated to match these size constants. The test message and the injected bit errors are set in `main.c`. If you change the code or its dimensions, the matrix data and the size constants must be updated together to match the new correct result.

@@ -4,7 +4,7 @@ This example runs a JPEG codec over an embedded test image on the Electron E1x g
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is JPEG?
 
@@ -24,7 +24,7 @@ where Q(u,v) is the quantization table entry, scaled by the chosen quality setti
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 JPEG is deployed almost everywhere images are stored or moved, so its codec is a representative real-world workload:
 
@@ -37,7 +37,7 @@ Because it combines block transforms, quantization, entropy coding, and irregula
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -53,14 +53,14 @@ The result is efficient image compression at low energy, which is the metric tha
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 The test image is embedded in the app (a 240x160 RGB image in `image.c`, declared in `image.h`), so there is no external input file. These definitions and constants in `main.c` control the benchmark. Change them to re-run it or adjust what is encoded.
 
 | Definition       | Default | Effect                                                                                                                                                                                                                                                                                                                                          |
 | ---------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`     | How many times the encode kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                                                                                                                                          |
-| `IMAGE_DIVIDER`  | `10`    | Divides the image height, so only the top `IMAGE_HEIGHT / IMAGE_DIVIDER` rows are encoded. Lowering it encodes more of the image and increases the work per run.                                                                                                                                                                                |
-| `answer_length`  | `1056`  | The expected size in bytes of the encoded JPEG produced by the reference. The optimized output size is compared against this value with a 2 percent tolerance (to account for fixed-point versus floating-point rounding). If you change the image, the encoded region, or the quality, this must be updated to match the new reference result. |
+| `NUM_ITERATIONS` | `1`     | This is how many times the encode kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                                                                                                                                          |
+| `IMAGE_DIVIDER`  | `10`    | This divides the image height, so only the top `IMAGE_HEIGHT / IMAGE_DIVIDER` rows are encoded. Lowering it encodes more of the image and increases the work per run.                                                                                                                                                                                |
+| `answer_length`  | `1056`  | This is the expected size in bytes of the encoded JPEG produced by the reference. The optimized output size is compared against this value with a 2 percent tolerance (to account for fixed-point versus floating-point rounding). If you change the image, the encoded region, or the quality, this must be updated to match the new reference result. |
 
 The image dimensions are fixed by the embedded data: `IMAGE_WIDTH` (240) and `IMAGE_HEIGHT` (160) are defined in `image.h`. The encode quality is passed as an argument to the encoder (50 in this example). The reference size (`answer_length`) is produced offline by `generate_answer.c`, which runs the reference encoder on the same image. If you change the input or any encode setting, regenerate the reference so the comparison matches the new correct result.

@@ -4,7 +4,7 @@ This example computes a **5x5 two-dimensional convolution** of an input image wi
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a 5x5 2D Convolution?
 
@@ -25,7 +25,7 @@ Each output pixel costs 25 multiply-accumulate (MAC) operations. For an output o
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 2D convolution is one of the most common operations in real systems:
 
@@ -38,7 +38,7 @@ Because it applies the same small set of weights to a large stream of data, it i
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -55,14 +55,14 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition         | Default | Effect                                                                                                                                                                |
 | ------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS`   | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                       |
-| `N`                | `64`    | The side length of the input image (both width and height). This sets the problem size: a larger value means a larger image and more MACs per run.                    |
-| `N_PAD`            | `N + 4` | The padded side length of the input buffer. The filter is 5 wide, so the buffer is padded by 4 to hold the full sliding window. Derived from `N`; keep it as `N + 4`. |
+| `NUM_ITERATIONS`   | `1`     | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                       |
+| `N`                | `64`    | This is the side length of the input image (both width and height). This sets the problem size: a larger value means a larger image and more MACs per run.                    |
+| `N_PAD`            | `N + 4` | This is the padded side length of the input buffer. The filter is 5 wide, so the buffer is padded by 4 to hold the full sliding window. Derived from `N`; keep it as `N + 4`. |
 | `RANDOMIZE_FILTER` | `1`     | When nonzero, the filter weights are overwritten with pseudo-random values at startup instead of the built-in weights.                                                |
-| `RANGE`            | `10`    | The range of the pseudo-random filter weights. It also centers them around zero by subtracting `(RANGE - 1) / 2`.                                                     |
+| `RANGE`            | `10`    | This is the range of the pseudo-random filter weights. It also centers them around zero by subtracting `(RANGE - 1) / 2`.                                                     |

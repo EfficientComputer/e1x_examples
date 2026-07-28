@@ -4,7 +4,7 @@ This example computes the **shortest path** between two points on a weighted map
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is Dijkstra's shortest path?
 
@@ -24,7 +24,7 @@ A min-heap keeps step 3 efficient: inserting a candidate and removing the curren
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Shortest-path search is one of the most widely used graph operations in real systems:
 
@@ -38,7 +38,7 @@ It is a good test of irregular, data-dependent work because the amount and order
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -53,14 +53,14 @@ The result is steady progress on a branch-heavy, pointer-chasing search at low e
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition       | Default | Effect                                                                                                                |
 | ---------------- | ------- | --------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`     | How many times the shortest-path search runs. Increase it to average out measurement noise when benchmarking.         |
-| `MAP_WIDTH`      | `20`    | The width in characters of the ASCII map that defines the graph. It must match the actual layout of the `map` string. |
-| `MAP_HEIGHT`     | `9`     | The height in rows of the ASCII map. It must match the actual layout of the `map` string.                             |
+| `NUM_ITERATIONS` | `1`     | This is how many times the shortest-path search runs. Increase it to average out measurement noise when benchmarking.         |
+| `MAP_WIDTH`      | `20`    | This is the width in characters of the ASCII map that defines the graph. It must match the actual layout of the `map` string. |
+| `MAP_HEIGHT`     | `9`     | This is the height in rows of the ASCII map. It must match the actual layout of the `map` string.                             |
 
 The map itself is a hardcoded string literal in `main.c`, with `S` marking the start and `D` marking the destination. You can edit this map to change the graph, but if you do, update `MAP_WIDTH` and `MAP_HEIGHT` to match. The correctness check compares the result against an expected path segment count of `8` and a total distance of `28`, both hardcoded in `main.c`. If you change the map, these expected values must be updated to match the new correct route.

@@ -4,7 +4,7 @@ This example computes the product of a **sparse matrix and a sparse vector** (`z
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a Sparse Matrix-Sparse Vector Multiply?
 
@@ -26,7 +26,7 @@ Each row's dot product walks the row and the vector together and accumulates onl
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Sparse matrix times sparse vector shows up wherever both the operator and the data are large but mostly empty:
 
@@ -39,7 +39,7 @@ Because it is bound by irregular access and the data-dependent matching of two s
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -54,11 +54,11 @@ The result is high throughput on doubly-sparse data at low energy, which is the 
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` (and the shared matrix header it includes) control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition       | Default | Effect                                                                                                                                                                                                                  |
 | ---------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                         |
-| `MAT_REF_SIZE`   | `32`    | The matrix dimension (number of rows and columns), defined in the shared `mat.h`. This sets the problem size. The sparse matrix `mat_a_sparse_*` and the sparse vector `vector_sparse_csc_*` are supplied from `mat.h`. |
+| `NUM_ITERATIONS` | `1`     | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                         |
+| `MAT_REF_SIZE`   | `32`    | This is the matrix dimension (number of rows and columns), defined in the shared `mat.h`. This sets the problem size. The sparse matrix `mat_a_sparse_*` and the sparse vector `vector_sparse_csc_*` are supplied from `mat.h`. |

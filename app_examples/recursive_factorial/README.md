@@ -4,7 +4,7 @@ This example computes a **factorial** using recursion on the Electron E1x genera
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a factorial?
 
@@ -26,7 +26,7 @@ Where each recursive call reduces `n` by one and multiplies its value into the r
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Factorials and the recursion pattern behind them show up across many settings:
 
@@ -39,7 +39,7 @@ As a benchmark it is a compact way to exercise recursion and a chain of dependen
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -54,13 +54,13 @@ The result is efficient evaluation of a recursive integer computation at low ene
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` control the benchmark. Change them to re-run it.
 
 | Definition        | Default   | Effect                                                                                                                                                                                 |
 | ----------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS`  | `1`       | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                        |
-| `EXPECTED_OUTPUT` | `3628800` | The expected result the output is compared against for the pass/fail print. This is the value of `10!`. If you change the input, this must be updated to match the new correct result. |
+| `NUM_ITERATIONS`  | `1`       | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                        |
+| `EXPECTED_OUTPUT` | `3628800` | This is the expected result the output is compared against for the pass/fail print. This is the value of `10!`. If you change the input, this must be updated to match the new correct result. |
 
 The factorial argument is a hardcoded literal in `main.c` (the variable `n` is set to `10`). You can edit this literal to compute a different factorial, but if you do, update `EXPECTED_OUTPUT` to match the new correct result. Note that factorials grow quickly, so large arguments will overflow the 32-bit integer result.

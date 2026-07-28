@@ -4,7 +4,7 @@ This example computes a **dense matrix-vector product** (`z = A · b`) on the El
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a Dense Matrix-Vector Multiply?
 
@@ -24,7 +24,7 @@ Each output element `z[i]` costs `m` multiply-accumulate (MAC) operations, for `
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Matrix-vector multiply is one of the most common operations in real systems:
 
@@ -37,7 +37,7 @@ Because it is memory-bound at large sizes and arithmetic-bound at small sizes, i
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -52,11 +52,11 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` (and the shared matrix header it includes) control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition       | Default | Effect                                                                                                                                                                                                                                      |
 | ---------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                                             |
-| `MAT_REF_SIZE`   | `32`    | The matrix dimension (both `n` and `m`), defined in the shared `mat.h`. This sets the problem size: a larger value means a larger matrix and vector and more MACs per run. The input matrix `mat_a` and `vector` are supplied from `mat.h`. |
+| `NUM_ITERATIONS` | `1`     | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                                             |
+| `MAT_REF_SIZE`   | `32`    | This is the matrix dimension (both `n` and `m`), defined in the shared `mat.h`. This sets the problem size: a larger value means a larger matrix and vector and more MACs per run. The input matrix `mat_a` and `vector` are supplied from `mat.h`. |

@@ -4,7 +4,7 @@ This example computes **square roots** using Newton-Raphson iteration on the Ele
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is Newton-Raphson square root?
 
@@ -27,7 +27,7 @@ Where:
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Square roots computed by iteration appear across numerical and signal-processing code:
 
@@ -41,7 +41,7 @@ It is a good example of an iterative floating-point kernel where the same small 
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -56,12 +56,12 @@ The result is fast convergence to an accurate estimate at low energy, which is t
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `sqrt_newton.c` (which holds both the kernel and the test driver) control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition | Default | Effect                                                                                                                                                   |
 | ---------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SQRT_QTY` | `10`    | How many values have their square root computed. The driver computes the square root of each integer from 0 up to `SQRT_QTY - 1` and checks each result. |
+| `SQRT_QTY` | `10`    | This is how many values have their square root computed. The driver computes the square root of each integer from 0 up to `SQRT_QTY - 1` and checks each result. |
 
 The number of refinement iterations is a hardcoded literal in the `sqrt_newton` function (the loop runs `5` times). Increasing it improves accuracy at the cost of more work; decreasing it does the reverse. The expected results are stored in the `actual_sqrt` array in `sqrt_newton.c`, compared with a tolerance in `float_equality`. If you change `SQRT_QTY` or the set of inputs, the `actual_sqrt` array must be updated to match the new correct values.

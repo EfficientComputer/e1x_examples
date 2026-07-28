@@ -4,7 +4,7 @@ This example computes a **multi-channel 3x3 convolution** on the Electron E1x ge
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a multi-channel 3x3 convolution?
 
@@ -26,7 +26,7 @@ Each output value costs nine multiply-accumulate (MAC) operations per channel, f
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Multi-channel 3x3 convolution is the core of most convolutional neural networks:
 
@@ -39,7 +39,7 @@ Because it combines dense arithmetic, cross-channel accumulation, and heavy wind
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -55,17 +55,17 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` and the app's `conv3x3xn.h` header control the benchmark. Change them to resize the problem or re-run it. The optimized kernel is compared against a reference implementation, so correctness holds automatically when you resize.
 
 | Definition       | Default              | Effect                                                                                                                                 |
 | ---------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`                  | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                        |
-| `M`              | `16`                 | The number of input rows (image height). Keeping it a power of two helps performance.                                                  |
-| `N`              | `16`                 | The number of input columns (image width). Keeping it a power of two helps performance.                                                |
-| `KERNEL_DIM`     | `3`                  | The filter side length. This kernel is specialized for 3x3 filters.                                                                    |
-| `NCHANNELS`      | `4`                  | The number of input channels summed together for each output value.                                                                    |
+| `NUM_ITERATIONS` | `1`                  | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                        |
+| `M`              | `16`                 | This is the number of input rows (image height). Keeping it a power of two helps performance.                                                  |
+| `N`              | `16`                 | This is the number of input columns (image width). Keeping it a power of two helps performance.                                                |
+| `KERNEL_DIM`     | `3`                  | This is the filter side length. This kernel is specialized for 3x3 filters.                                                                    |
+| `NCHANNELS`      | `4`                  | The number of input channels summed together for each output value                                                                    |
 | `FASTPATH`       | `1`                  | When enabled, adds padding columns to the input and output buffers so the store does not need to be gated, which improves performance. |
-| `INSTRIDE`       | `N + 1`              | The row stride of the input buffer in elements. With `FASTPATH` enabled it includes one padding column to avoid memory bank conflicts. |
-| `OUTSTRIDE`      | `N + KERNEL_DIM - 1` | The row stride of the output buffer in elements. With `FASTPATH` enabled it includes the leading padding columns.                      |
+| `INSTRIDE`       | `N + 1`              | This is the row stride of the input buffer in elements. With `FASTPATH` enabled it includes one padding column to avoid memory bank conflicts. |
+| `OUTSTRIDE`      | `N + KERNEL_DIM - 1` | This is the row stride of the output buffer in elements. With `FASTPATH` enabled it includes the leading padding columns.                      |

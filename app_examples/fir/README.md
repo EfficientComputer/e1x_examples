@@ -4,7 +4,7 @@ This example computes a **finite impulse response (FIR) filter** on the Electron
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a FIR filter?
 
@@ -24,7 +24,7 @@ Each output sample `o[i]` costs `W` multiply-accumulate (MAC) operations, for `N
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 FIR filtering is one of the most common operations in signal processing:
 
@@ -37,7 +37,7 @@ Because it is arithmetic-bound and streams predictably over its input, FIR filte
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -52,14 +52,14 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `fir.h` and `main.c` control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition       | Default | Effect                                                                                                                                |
 | ---------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `N`              | `64`    | The number of output samples produced, defined in `fir.h`. A larger value means a longer output signal and more MACs per run.         |
-| `W`              | `16`    | The number of filter taps, defined in `fir.h`. It sets how many MACs go into each output sample and the length of the sliding window. |
-| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                       |
+| `N`              | `64`    | This is the number of output samples produced, defined in `fir.h`. A larger value means a longer output signal and more MACs per run.         |
+| `W`              | `16`    | This is the number of filter taps, defined in `fir.h`. It sets how many MACs go into each output sample and the length of the sliding window. |
+| `NUM_ITERATIONS` | `1`     | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                       |
 
 The input signal `x` and the taps `w` are generated inline in `main.c` (`x[i] = i` and `w[i] = i - 8`), and the output is checked against a hardcoded expected value of `280` for `o[0]`. If you change `N`, `W`, or the way the inputs are generated, that expected value must be updated to match the new correct result.

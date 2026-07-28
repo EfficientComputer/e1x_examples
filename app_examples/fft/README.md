@@ -4,7 +4,7 @@ This example computes a fixed-point Fast Fourier Transform on the Electron E1x g
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is an FFT?
 
@@ -25,7 +25,7 @@ Each output bin combines contributions from every input sample, weighted by a co
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 The FFT is one of the most widely used algorithms in signal processing, and it appears throughout real systems:
 
@@ -39,7 +39,7 @@ Because it combines complex arithmetic, non-sequential memory access, and multip
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -55,13 +55,13 @@ The result is high signal-processing throughput at low energy, which is the metr
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition       | Default | Effect                                                                                                                                                                                                                                                          |
 | ---------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                                                                 |
-| `FFT_SIZE`       | `4096`  | The number of FFT points (`N`). This sets the problem size: a larger value means more input samples and more butterfly stages. If you change it, the build must be updated so the twiddle factors and expected reference data are regenerated for the new size. |
+| `NUM_ITERATIONS` | `1`     | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                                                                 |
+| `FFT_SIZE`       | `4096`  | This is the number of FFT points (`N`). This sets the problem size: a larger value means more input samples and more butterfly stages. If you change it, the build must be updated so the twiddle factors and expected reference data are regenerated for the new size. |
 
 The input samples (`sample_input`) and the expected reference output (`expectedR`, `expectedI`) are generated for the chosen `FFT_SIZE`. Each output bin is compared against the reference with a tolerance of 10 per component to account for fixed-point quantization. If you change the size or the input data, the reference data must be regenerated to match the new correct result.

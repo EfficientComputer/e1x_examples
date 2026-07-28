@@ -4,7 +4,7 @@ This example performs **operations on sparse vectors** on the Electron E1x gener
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a Sparse Vector Operation?
 
@@ -26,7 +26,7 @@ Only shared coordinates contribute, so the work depends on the overlap of the tw
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Sparse vector operations are a core building block wherever data is high-dimensional but mostly empty:
 
@@ -39,7 +39,7 @@ Because it is bound by irregular access and the data-dependent matching of two s
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -54,18 +54,18 @@ The result is high throughput on irregular data at low energy, which is the metr
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `svec.h` and `main.c` control the benchmark. Change them to resize the problem or switch the vector representation.
 
 | Definition       | Default   | Effect                                                                                                                                                                                                                                         |
 | ---------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SVEC_FIXED_VEC` | defined   | Uses the fixed, hand-picked input vectors so the result can be checked against a known answer.                                                                                                                                                 |
-| `SVEC_DYNAMIC`   | undefined | When defined, allocates the vectors dynamically instead of using the static arrays. Leave undefined to use the static representation.                                                                                                          |
-| `SVEC_MAX_NNZS`  | `100`     | The maximum number of nonzero entries a vector can hold. Sets the size of the static coordinate and value arrays.                                                                                                                              |
-| `MAX_VEC_NNZS`   | `100`     | The nonzero cap used when filling a random vector. Set equal to `SVEC_MAX_NNZS`.                                                                                                                                                               |
-| `MAX_COORD`      | `100`     | The largest coordinate a random vector can use, that is, the effective length of the vector space.                                                                                                                                             |
+| `SVEC_FIXED_VEC` | defined   | This uses the fixed, hand-picked input vectors so the result can be checked against a known answer.                                                                                                                                                 |
+| `SVEC_DYNAMIC`   | undefined | When defined, this allocates the vectors dynamically instead of using the static arrays. Leave undefined to use the static representation.                                                                                                          |
+| `SVEC_MAX_NNZS`  | `100`     | This is the maximum number of nonzero entries a vector can hold. It sets the size of the static coordinate and value arrays.                                                                                                                              |
+| `MAX_VEC_NNZS`   | `100`     | This is the nonzero cap used when filling a random vector. Set equal to `SVEC_MAX_NNZS`.                                                                                                                                                               |
+| `MAX_COORD`      | `100`     | The largest coordinate a random vector can use, that is, the effective length of the vector space                                                                                                                                             |
 | `NNZ_LIKELIHOOD` | `8`       | For random vectors, the probability that any given coordinate is nonzero is 1 / `NNZ_LIKELIHOOD`. A larger value makes the vectors sparser.                                                                                                    |
-| `V1LEN`          | `7`       | Number of nonzeros in the first fixed input vector.                                                                                                                                                                                            |
-| `V2LEN`          | `11`      | Number of nonzeros in the second fixed input vector.                                                                                                                                                                                           |
-| `RESLEN`         | `2`       | Number of nonzeros in the expected result. With `SVEC_FIXED_VEC`, the output is checked against `res_index` and `res_val`. If you change the fixed inputs, these expected values and `RESLEN` must be updated to match the new correct result. |
+| `V1LEN`          | `7`       | Number of nonzeros in the first fixed input vector                                                                                                                                                                                            |
+| `V2LEN`          | `11`      | Number of nonzeros in the second fixed input vector                                                                                                                                                                                           |
+| `RESLEN`         | `2`       | This is the number of nonzeros in the expected result. With `SVEC_FIXED_VEC`, the output is checked against `res_index` and `res_val`. If you change the fixed inputs, these expected values and `RESLEN` must be updated to match the new correct result. |

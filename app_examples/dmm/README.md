@@ -4,7 +4,7 @@ This example computes a **dense matrix-matrix product** (`Z = A * B`) on the Ele
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a Dense Matrix Multiply?
 
@@ -24,7 +24,7 @@ Each output element `Z[i][j]` costs `m` multiply-accumulate (MAC) operations, fo
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Matrix multiply is one of the most common operations in real systems:
 
@@ -37,7 +37,7 @@ Because it is arithmetic-bound and highly regular, matrix multiply is a good mea
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -52,11 +52,11 @@ The result is high arithmetic throughput at low energy, which is the metric that
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` (and the shared matrix header it includes) control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition       | Default | Effect                                                                                                                                                                                                                                                                |
 | ---------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                                                                       |
-| `MAT_REF_SIZE`   | `32`    | The matrix dimension (used for all of `n`, `m`, and `o`), defined in the shared `mat.h`. This sets the problem size: a larger value means larger matrices and more MACs per run, growing as O(n^3). The input matrices `mat_a` and `mat_b` are supplied from `mat.h`. |
+| `NUM_ITERATIONS` | `1`     | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                                                                       |
+| `MAT_REF_SIZE`   | `32`    | This is the matrix dimension (used for all of `n`, `m`, and `o`), defined in the shared `mat.h`. This sets the problem size: a larger value means larger matrices and more MACs per run, growing as O(n^3). The input matrices `mat_a` and `mat_b` are supplied from `mat.h`. |

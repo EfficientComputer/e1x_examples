@@ -4,7 +4,7 @@ This example adds two **sparse matrices** (`Z = A + B`) on the Electron E1x gene
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a Sparse Matrix Addition?
 
@@ -25,7 +25,7 @@ Only positions that are nonzero in `A` or `B` contribute, so the work is proport
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Adding sparse matrices is a building block wherever large, mostly-empty operators are combined:
 
@@ -38,7 +38,7 @@ Because it is bound by irregular access and the data-dependent merging of two sp
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -53,11 +53,11 @@ The result is high throughput on irregular data at low energy, which is the metr
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` (and the shared matrix header it includes) control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition       | Default | Effect                                                                                                                                                                                                                |
 | ---------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NUM_ITERATIONS` | `1`     | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                       |
-| `MAT_REF_SIZE`   | `32`    | The matrix dimension (number of rows and columns). This sets the problem size and the size of the dense output `mat_z`. The sparse inputs `mat_a_sparse_*` and `mat_b_sparse_*` are supplied from the shared `mat.h`. |
+| `NUM_ITERATIONS` | `1`     | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                                       |
+| `MAT_REF_SIZE`   | `32`    | This is the matrix dimension (number of rows and columns). This sets the problem size and the size of the dense output `mat_z`. The sparse inputs `mat_a_sparse_*` and `mat_b_sparse_*` are supplied from the shared `mat.h`. |

@@ -4,7 +4,7 @@ This example solves the **knapsack problem** with dynamic programming on the Ele
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is the knapsack problem?
 
@@ -26,7 +26,7 @@ After the table is filled, the chosen counts are recovered by walking backward f
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Knapsack-style optimization appears throughout resource allocation and decision-making:
 
@@ -40,7 +40,7 @@ It is a good example of a data-dependent dynamic program, where the work is domi
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -55,14 +55,14 @@ The result is steady progress on a comparison-heavy dynamic program at low energ
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions in `main.c` control the benchmark. Change them to resize the problem or re-run it.
 
 | Definition       | Default | Effect                                                                                                                                           |
 | ---------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `NUM_ITERATIONS` | `1`     | How many times the solver runs. Increase it to average out measurement noise when benchmarking.                                                  |
-| `n`              | `5`     | The number of items considered. This sets the number of rows in the dynamic-programming table.                                                   |
-| `w`              | `400`   | The weight capacity of the knapsack. This sets the number of columns in the table, so a larger value means a larger table and more work per run. |
+| `NUM_ITERATIONS` | `1`     | This is how many times the solver runs. Increase it to average out measurement noise when benchmarking.                                                  |
+| `n`              | `5`     | This is the number of items considered. This sets the number of rows in the dynamic-programming table.                                                   |
+| `w`              | `400`   | This is the weight capacity of the knapsack. This sets the number of columns in the table, so a larger value means a larger table and more work per run. |
 
 The items themselves (each item's weight, value, and available count) are hardcoded literals in the `init_items` function in `main.c`. You can edit these literals to change the problem. The correctness check compares the result against an expected total count of `6`, total weight of `395`, and total value of `730`, all hardcoded in `main.c`. If you change the items, the capacity, or the item count, these expected values must be updated to match the new correct answer.

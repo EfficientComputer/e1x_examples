@@ -4,7 +4,7 @@ This example runs a biquad (second-order) IIR filter over a block of audio sampl
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What is a Biquad Filter?
 
@@ -25,7 +25,7 @@ The feedback terms create a loop-carried dependence: each output depends on outp
 
 ---
 
-## 2. Why This Kernel Matters
+## Why This Kernel Matters
 
 Biquad filters are a staple of real-time signal processing and show up wherever a signal needs to be shaped:
 
@@ -39,7 +39,7 @@ Because they are efficient, numerically well behaved, and easy to cascade, biqua
 
 ---
 
-## 3. Why EFF Hardware Performs Well
+## Why Efficient Hardware Performs Well
 
 The Electron E1x runs programs on the Fabric architecture, a spatial dataflow design. Rather than repeatedly fetching, decoding, and scheduling instructions the way a traditional processor does, the effcc Compiler maps the kernel onto the Fabric as a dataflow graph. Operations fire as soon as their inputs are ready, and intermediate values flow directly between compute elements instead of moving through memory.
 
@@ -55,15 +55,15 @@ The result is steady, low-latency filtering at low energy, which is the metric t
 
 ---
 
-## 4. Configurable Parameters
+## Configurable Parameters
 
 These definitions and constants in `main.c` control the benchmark. Change them to resize the problem, retune the filter, or re-run it.
 
 | Definition       | Default                                | Effect                                                                                                                                                                                           |
 | ---------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `NUM_ITERATIONS` | `1`                                    | How many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                  |
-| `INPUT_SIZE`     | `16384`                                | The number of samples in the input block. This sets the problem size. If you change it, the build must be updated so the sample input and expected output data are regenerated for the new size. |
-| `zeros_coeffs`   | `{0.00306..., 0.00612..., 0.00306...}` | The three feed-forward (zero) coefficients `b0`, `b1`, `b2`. They define the filter response, set here for a low-pass filter centered near 300 Hz with Q around 0.72.                            |
-| `poles_coeffs`   | `{-1.84008..., 0.85233...}`            | The two feedback (pole) coefficients `a1`, `a2`. They also shape the filter response and are converted to Q15 fixed-point before filtering.                                                      |
+| `NUM_ITERATIONS` | `1`                                    | This is how many times the kernel runs. Increase it to average out measurement noise when benchmarking.                                                                                                  |
+| `INPUT_SIZE`     | `16384`                                | This is the number of samples in the input block. This sets the problem size. If you change it, the build must be updated so the sample input and expected output data are regenerated for the new size. |
+| `zeros_coeffs`   | `{0.00306..., 0.00612..., 0.00306...}` | This is the three feed-forward (zero) coefficients `b0`, `b1`, `b2`. They define the filter response, set here for a low-pass filter centered near 300 Hz with Q around 0.72.                            |
+| `poles_coeffs`   | `{-1.84008..., 0.85233...}`            | This is the two feedback (pole) coefficients `a1`, `a2`. They also shape the filter response and are converted to Q15 fixed-point before filtering.                                                      |
 
 The input samples (`sample_input`) and the expected reference output (`expected_output`) are generated for the chosen `INPUT_SIZE` and coefficient set. The output is compared against the reference using an average absolute error threshold (the first 100 samples are skipped to let the filter settle). If you change the size, the input data, or the coefficients, the reference data must be regenerated to match the new correct result.

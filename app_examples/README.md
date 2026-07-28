@@ -2,50 +2,50 @@
 
 ## Overview
 
-This project provides example apps demonstrating optimized algorithms running on the E1x processor using the E1x Evaluation Kit (EVK). These examples serve as a reference for developers looking to understand how to leverage E1x's architecture for real-world DSP, image processing, communications, and compute workloads. Each app includes complete source code showing EFF-optimized implementations along with correctness validation.
+This project provides example apps demonstrating optimized algorithms running on the E1x processor using the E1x Evaluation Kit (EVK). These examples serve as a reference for developers looking to understand how to leverage E1x's architecture for real-world DSP, image processing, communications, and compute workloads. Each app includes complete source code showing Efficient-optimized implementations along with correctness validation.
 
 ---
 
 ## Apps
 
-- **bfs** - Breadth-First Search (Graph)
-- **biquad_filter** - Optimized Biquad IIR Filter (DSP)
-- **cholesky_decomp** - Cholesky Decomposition (Linear Algebra)
-- **conv3x3** - 3×3 Convolution Kernel (ML/Vision)
-- **conv3x3_dw** - 3×3 Depthwise Convolution (ML/Vision)
-- **conv3x3_dw_vec** - Vectorized 3×3 Depthwise Convolution (ML/Vision)
-- **conv3x3_vec** - Vectorized 3×3 Convolution Kernel (ML/Vision)
-- **conv3x3xn** - Multi-Channel 3×3 Convolution (ML/Vision)
-- **conv3x3xn_vec** - Vectorized Multi-Channel 3×3 Convolution (ML/Vision)
-- **conv5x5** - Optimized 5×5 Convolution Kernel (ML/Vision)
-- **conv5x5_vec** - Vectorized 5×5 Convolution Kernel (ML/Vision)
-- **conv5x5sym** - Symmetric 5×5 Convolution Kernel (ML/Vision)
-- **conv5x5sym_vec** - Vectorized Symmetric 5×5 Convolution Kernel (ML/Vision)
-- **crc32** - CRC-32 Checksum (Data Integrity)
-- **dijkstras** - Dijkstra's Shortest Path (Graph)
-- **dmm** - Dense Matrix Multiply (Linear Algebra)
-- **dmm_i8** - Int8 Dense Matrix Multiply (Linear Algebra)
-- **dmm_vectorized** - Vectorized Dense Matrix Multiply (Linear Algebra)
-- **dmv** - Dense Matrix-Vector Multiply (Linear Algebra)
-- **dmv_fp** - Floating-Point Dense Matrix-Vector Multiply (Linear Algebra)
-- **dmv_vec** - Vectorized Dense Matrix-Vector Multiply (Linear Algebra)
-- **fft** - Fast Fourier Transform (DSP)
-- **fir** - FIR Filter (DSP)
-- **fir_vec** - Vectorized FIR Filter (DSP)
-- **hello** - Minimal "Hello World" example
-- **isqrt** - Integer Square Root (Math)
-- **jpeg** - JPEG Image Encoder (Multimedia)
-- **knapsack** - 0/1 Knapsack Solver (Dynamic Programming)
-- **ldpc** - LDPC Encoder/Decoder (Communications)
-- **levenshtein** - Levenshtein Edit Distance (Dynamic Programming)
-- **qr_decomp** - QR Decomposition (Linear Algebra)
-- **quickstart** - Simple "Hello World" example
-- **recursive_factorial** - Recursive Factorial (Math)
-- **smv** - Sparse Matrix-Vector Multiply (Sparse Linear Algebra)
-- **spadd** - Sparse Matrix Addition (Sparse Linear Algebra)
-- **sparse** - Sparse Vector Operations (Sparse Linear Algebra)
-- **spmspv** - Sparse Matrix–Sparse Vector Multiply (Sparse Linear Algebra)
-- **sqrt_newton** - Newton's Method Square Root (Math)
+- **bfs**: Breadth-First Search (Graph)
+- **biquad_filter**: Optimized Biquad IIR Filter (DSP)
+- **cholesky_decomp**: Cholesky Decomposition (Linear Algebra)
+- **conv3x3**: 3×3 Convolution Kernel (ML/Vision)
+- **conv3x3_dw**: 3×3 Depthwise Convolution (ML/Vision)
+- **conv3x3_dw_vec**: Vectorized 3×3 Depthwise Convolution (ML/Vision)
+- **conv3x3_vec**: Vectorized 3×3 Convolution Kernel (ML/Vision)
+- **conv3x3xn**: Multi-Channel 3×3 Convolution (ML/Vision)
+- **conv3x3xn_vec**: Vectorized Multi-Channel 3×3 Convolution (ML/Vision)
+- **conv5x5**: Optimized 5×5 Convolution Kernel (ML/Vision)
+- **conv5x5_vec**: Vectorized 5×5 Convolution Kernel (ML/Vision)
+- **conv5x5sym**: Symmetric 5×5 Convolution Kernel (ML/Vision)
+- **conv5x5sym_vec**: Vectorized Symmetric 5×5 Convolution Kernel (ML/Vision)
+- **crc32**: CRC-32 Checksum (Data Integrity)
+- **dijkstras**: Dijkstra's Shortest Path (Graph)
+- **dmm**: Dense Matrix Multiply (Linear Algebra)
+- **dmm_i8**: Int8 Dense Matrix Multiply (Linear Algebra)
+- **dmm_vectorized**: Vectorized Dense Matrix Multiply (Linear Algebra)
+- **dmv**: Dense Matrix-Vector Multiply (Linear Algebra)
+- **dmv_fp**: Floating-Point Dense Matrix-Vector Multiply (Linear Algebra)
+- **dmv_vec**: Vectorized Dense Matrix-Vector Multiply (Linear Algebra)
+- **fft**: Fast Fourier Transform (DSP)
+- **fir**: FIR Filter (DSP)
+- **fir_vec**: Vectorized FIR Filter (DSP)
+- **hello**: Minimal "Hello World" example
+- **isqrt**: Integer Square Root (Math)
+- **jpeg**: JPEG Image Encoder (Multimedia)
+- **knapsack**: 0/1 Knapsack Solver (Dynamic Programming)
+- **ldpc**: LDPC Encoder/Decoder (Communications)
+- **levenshtein**: Levenshtein Edit Distance (Dynamic Programming)
+- **qr_decomp**: QR Decomposition (Linear Algebra)
+- **quickstart**: Simple "Hello World" example
+- **recursive_factorial**: Recursive Factorial (Math)
+- **smv**: Sparse Matrix-Vector Multiply (Sparse Linear Algebra)
+- **spadd**: Sparse Matrix Addition (Sparse Linear Algebra)
+- **sparse**: Sparse Vector Operations (Sparse Linear Algebra)
+- **spmspv**: Sparse Matrix-Sparse Vector Multiply (Sparse Linear Algebra)
+- **sqrt_newton**: Newton's Method Square Root (Math)
 
 ## Getting Started
 
