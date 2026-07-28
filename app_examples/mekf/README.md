@@ -53,7 +53,7 @@ pull its estimate back to level.
 
 ## Build & run
 
-Standard Efficient SDK flow (`scalar` target); run in sim or flash to the EVK. Prints
+Standard EFF SDK flow (`scalar` target); run in sim or flash to the EVK. Prints
 the start/end attitude error and `PASS`/`FAIL`.
 
 ---

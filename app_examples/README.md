@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project provides example apps demonstrating optimized algorithms running on the E1x processor using the E1x Evaluation Kit (EVK). These examples serve as a reference for developers looking to understand how to leverage E1x's architecture for real-world DSP, image processing, communications, and compute workloads. Each app includes complete source code showing Efficient-optimized implementations along with correctness validation.
+This project provides example apps demonstrating optimized algorithms running on the E1x processor using the E1x Evaluation Kit (EVK). These examples serve as a reference for developers looking to understand how to leverage E1x's architecture for real-world DSP, image processing, communications, and compute workloads. Each app includes complete source code showing E1x-optimized implementations along with correctness validation.
 
 ---
 

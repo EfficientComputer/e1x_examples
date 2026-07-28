@@ -59,7 +59,7 @@ slack+dual: z = clip(u + y, [umin, umax]);  y += u - z
 
 ## Build & run
 
-Build with the standard Efficient SDK flow (`fabric` and `scalar` targets). Run in the
+Build with the standard EFF SDK flow (`fabric` and `scalar` targets). Run in the
 simulator or flash to the EVK; the app prints the computed control and a
 `PASS`/`FAIL` over the UART console.
 

@@ -57,7 +57,7 @@ example, dimensioned for the 8-state aircraft, with a per-control box.
 
 ## Build & run
 
-Standard Efficient SDK flow (`fabric` and `scalar` targets); run in sim or flash to the
+Standard EFF SDK flow (`fabric` and `scalar` targets); run in sim or flash to the
 EVK. Prints the scheduled node, the control delta, and `PASS`/`FAIL`.
 
 ---

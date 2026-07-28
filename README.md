@@ -8,7 +8,7 @@ If you haven't already, please make sure you've set up your board and developmen
 
 ## App Examples
 
-Optimized algorithm implementations demonstrating how to leverage E1x's architecture for real-world DSP, image processing, communications, and compute workloads. Each app includes complete source code with Efficient-optimized kernels and correctness validation. This project supports both our physical EVK and our Cloud EVK.
+Optimized algorithm implementations demonstrating how to leverage E1x's architecture for real-world DSP, image processing, communications, and compute workloads. Each app includes complete source code with E1x-optimized kernels and correctness validation. This project supports both our physical EVK and our Cloud EVK.
 
 - **bfs** - Breadth-First Search (Graph)
 - **biquad_filter** - Optimized Biquad IIR Filter (DSP)
