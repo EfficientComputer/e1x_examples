@@ -9,7 +9,7 @@ project(app_examples)
 set(EFF_STDIO_PORT 3)
 
 # Replace with your EFF SDK path if installed elsewhere
-file(REAL_PATH "~/effcc/sdk" EFF_SDK_ROOT_DIR)
+file(REAL_PATH "$ENV{HOME}/effcc/sdk" EFF_SDK_ROOT_DIR)
 include(${EFF_SDK_ROOT_DIR}/setup_sdk.cmake)
 add_subdirectory(${EFF_SDK_ROOT_DIR} sdk)
 
