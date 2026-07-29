@@ -67,7 +67,7 @@ Then rebuild, as directed below.
 
 ### Building
 
-Some apps require NumPy to generate data that will be used inside of the program. With Python 3.13 or greater, create a python environment in the `app_examples` folder and install numpy:
+Some apps require NumPy to generate data that will be used inside of the program. With Python 3.12 or greater, create a python environment in the `app_examples` folder and install numpy:
 
 ```
 python3 -m venv venv
