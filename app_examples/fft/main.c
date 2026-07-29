@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "fft.h"
 
+#define NUM_ITERATIONS 1
+
 // If changed, the CMakeLists.txt file will need to be updated so
 // generate_fft.py follows the new size
 #define FFT_SIZE 4096
@@ -13,14 +15,20 @@ extern const uint32_t sample_input[FFT_SIZE];
 
 fft_cpx out_buf[FFT_SIZE] = {0};
 
-int main() {
+int main()
+{
     // Run FFT
-    fft((fft_cpx*)sample_input, out_buf, FFT_SIZE);
+    for (int iter = 0; iter < NUM_ITERATIONS; iter++)
+    {
+        fft((fft_cpx *)sample_input, out_buf, FFT_SIZE);
+    }
 
     // Check answer against reference.
-    for (int i = 0; FFT_SIZE > i; i++) {
+    for (int i = 0; FFT_SIZE > i; i++)
+    {
         if (abs(expectedR[i] - out_buf[i].r) > 10 ||
-            abs(expectedI[i] - out_buf[i].i) > 10) {
+            abs(expectedI[i] - out_buf[i].i) > 10)
+        {
             printf("[fft] FAIL (%d) expected=(%d,%d) got=(%d,%d)\n", i,
                    expectedR[i], expectedI[i], out_buf[i].r, out_buf[i].i);
             return 0;

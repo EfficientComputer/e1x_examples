@@ -1,7 +1,8 @@
 #include <eff.h>
 #include <stdio.h>
 
-int main() {
+int main()
+{
     int i = 0;
     int set = 0;
 
@@ -12,11 +13,12 @@ int main() {
     while (1)
     {
         printf("Energy is everything! %i\r\n", i++);
-        if(set)
+        if (set)
         {
             eff_gpio_clear(GPIO_11, (GPIO_PIN_2 | GPIO_PIN_3));
             set = 0;
-        }else
+        }
+        else
         {
             eff_gpio_set(GPIO_11, (GPIO_PIN_2 | GPIO_PIN_3));
             set = 1;

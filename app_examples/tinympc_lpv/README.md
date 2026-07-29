@@ -1,26 +1,27 @@
-# TinyMPC LPV — Fixed-Wing MPC Across a Flight Envelope
+# TinyMPC LPV: Fixed-Wing MPC Across a Flight Envelope
 
-Cache-scheduled (LPV) model-predictive control for a fixed-wing aircraft on E1x.
-Extends [TinyMPC](https://tinympc.org) from a single operating point to a whole
-**flight envelope** — while keeping the online cost identical.
+This example runs cache-scheduled (LPV) model-predictive control for a fixed-wing
+aircraft on E1x. It extends [TinyMPC](https://tinympc.org) from a single
+operating point to a whole **flight envelope**, while keeping the online cost
+identical.
 
 ---
 
-## 1. The idea
+## The idea
 
 Vanilla TinyMPC precomputes one infinite-horizon cache (`Kinf, Pinf, Quu⁻¹,
-AmBKt`) from the DARE — extremely cheap online, but only valid in a neighborhood
-of **one** operating point. That's fine for a quadrotor hovering; a fixed-wing
-aircraft, though, flies across a range of airspeeds, climb angles, and bank
-angles, and a single linearization goes stale fast.
+AmBKt`) from the DARE. This is extremely cheap online, but only valid in a
+neighborhood of **one** operating point. That's fine for a quadrotor hovering; a
+fixed-wing aircraft, though, flies across a range of airspeeds, climb angles, and
+bank angles, and a single linearization goes stale fast.
 
 The fix is classic gain scheduling, applied to TinyMPC's cache: precompute a
 **grid of caches**, one per trimmed flight condition, and at runtime **select the
 nearest cache** for the live condition, then run the *same* ADMM solve on it.
 
-- Scheduling is a nearest-node array lookup — `~10²` integer ops vs `~10⁵` for a
+- Scheduling is a nearest-node array lookup: `~10²` integer ops vs `~10⁵` for a
   solve, so it's free relative to the solve.
-- The online solve is unchanged — same fabric kernel, same latency.
+- The online solve is unchanged: same fabric kernel, same latency.
 - The only cost is the read-only cache LUT (here 21 nodes, ~17 KB in Q20).
 
 This example uses an **Ultra Stick 25e** (a UMN UAV-lab research aircraft) with a
@@ -29,7 +30,7 @@ phi theta]`, 4 controls `[throttle, elevator, aileron, rudder]`, horizon 15).
 
 ---
 
-## 2. What it does
+## What it does
 
 `main.c`:
 1. Commands a flight condition (a 30° right coordinated turn).
@@ -43,30 +44,31 @@ example, dimensioned for the 8-state aircraft, with a per-control box.
 
 ---
 
-## 3. Code structure
+## Code structure
 
-- **`tinympc_lpv.c`** — `lpv_select_node` (the schedule) + the `__efficient__`
+- **`tinympc_lpv.c`**: `lpv_select_node` (the schedule) + the `__efficient__`
   fabric ADMM kernel + a scalar reference.
-- **`ustick_turn_q20.h`** — the bank × climb cache LUT (21 nodes: `A, B, Kinf,
+- **`ustick_turn_q20.h`**: the bank × climb cache LUT (21 nodes: `A, B, Kinf,
   Quu⁻¹, AmBKt`), the per-node `(bank, climb)` schedule coordinates, and per-node
-  trim controls — all Q20.
-- **`main.c`** — schedule, solve, compare.
+  trim controls, all Q20.
+- **`main.c`**: schedule, solve, compare.
 
 ---
 
-## 4. Build & run
+## Build & run
 
 Standard EFF SDK flow (`fabric` and `scalar` targets); run in sim or flash to the
 EVK. Prints the scheduled node, the control delta, and `PASS`/`FAIL`.
 
 ---
 
-## 5. Why this example is useful
+## Why this example is useful
 
 It shows how to make MPC track a vehicle across its **operating envelope** on
 E1x without paying more online: the fabric does the same ~constant-cost ADMM
 solve, scheduling just selects which precomputed cache feeds it. This is the
 practical recipe for real fixed-wing / variable-condition flight control where a
-single LTI model isn't enough — at fixed-point, fabric-accelerated, low-energy
-cost. (It covers the quasi-static envelope — trimmed flight conditions; genuine
+single LTI model isn't enough. It does so at fixed-point, fabric-accelerated,
+low-energy cost. (It covers the quasi-static envelope of trimmed flight
+conditions; genuine
 non-equilibrium aerobatics are out of scope for any trim-scheduled approach.)
