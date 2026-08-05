@@ -65,6 +65,13 @@ slack+dual: z = clip(u + y, [umin, umax]);  y += u - z
 - **`pca9685.c` / `.h`** — I²C driver for the PCA9685 16-channel PWM chip.
 - **`f450_motors.c` / `.h`** — maps the four solver outputs to ESC pulse widths and
   drives PCA9685 channels 0–3 (arm / write / failsafe-disarm).
+- **`main_full.c`** — the **end-to-end fixed-point flight stack** (target
+  `tinympc_f450_full`): real sensors → estimator → MPC → PWM (§8). `main.c` above
+  is the pure-sim cage demo; `main_full.c` closes the loop on hardware.
+- **`sensors.c/.h`** — BMI323 (gyro+accel) + ENS220 (baro), converted to Q-format
+  with pure integer math. **`mekf_q20.c/.h`** — validated fixed-point attitude MEKF.
+  **`bmi323.c/.h`, `ens220.c/.h`** — HAT sensor drivers (BMM350 mag + NEO-M9N
+  GPS drivers arrive with the staged position/yaw follow-up).
 - **`main.c`** — a **wall-safe "in-place" cage demo** in trajectory-*tracking* mode
   (`e = x - xref(t)`): **hover → vertical bounce → yaw spin-in-place → hover**. It
   only commands motions a tight indoor cage + an IMU/mag/baro/GPS suite handle well
@@ -120,7 +127,38 @@ This is enabled by the `F450_MOTORS` compile definition (set for the E1x targets
 > controller your *estimated* state instead of the internal model, and keep the
 > geofence as the failsafe.
 
-## 7. Correctness
+## 7. End-to-end fixed-point flight stack (`tinympc_f450_full`)
+
+`main_full.c` closes the loop on real hardware, and **the entire per-step path is
+int32 fixed point — no float, no soft-float** (the E1x has no FPU, so float would
+be soft-float and dominate the loop):
+
+```
+BMI323 + ENS220 ─(int)→ mekf_q20 attitude (Q15/Q20) ─┐
+                        gyro-integrated yaw, baro z   ├→ 12-state x̂ (Q20)
+                                                      ▼
+                    e = x̂ − xref(t) ─→ TinyMPC (Q20, fabric) ─→ f450_motors → PCA9685
+```
+
+- **Attitude**: the validated `mekf_q20` (gyro+accel; quaternion Q15, covariance
+  Q20, int32 hot path). Roll/pitch are read as the small-angle quaternion vector
+  (no `atan2`/`asin` — that trig would be soft-float); **yaw** is a fixed-point
+  gyro integrator.
+- **Altitude**: baro → Q20, plus a low-passed vertical velocity.
+- **Sensor scaling** is pure integer (`gyro_q15 = raw·34907/1000`,
+  `a_norm_q8 = raw>>6`, baro subtract-and-scale).
+- The only float is `mekf_q20_init` at startup (one-time) — off the hot path.
+- Validated on host: conversions, yaw integrator, and attitude tracking all match
+  a float reference.
+
+**Staged fixed-point follow-up** (chosen "inner-loop-first"): horizontal
+position/velocity fusion (GPS + baro + accel) and mag-yaw (BMM350) as fixed-point
+*complementary filters*, validated on host before hardware. Until then `px,py,vx,vy`
+read 0 and the geofence is inactive, so **`tinympc_f450_full` is bench/tethered
+only, props off** — it exercises the full sense→estimate→control→PWM path but can't
+hold horizontal position yet.
+
+## 8. Correctness
 
 `__effcc_parallel` only parallelizes independent matvec outputs, so the fabric and
 scalar integer results are **bit-identical** — `PASS` means they matched exactly and
