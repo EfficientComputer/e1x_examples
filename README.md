@@ -50,9 +50,9 @@ Optimized algorithm implementations demonstrating how to leverage E1x's architec
 - **sqrt_newton** - Newton's Method Square Root (Math)
 - **tinympc** - TinyMPC Quadrotor Model-Predictive Control (Robotics / Control)
 - **tinympc_lpv** - Cache-Scheduled (LPV) Fixed-Wing MPC (Robotics / Control)
+- **tinympc_f450** - TinyMPC Hover Control for a Hawk's Work F450 Quadrotor (Robotics / Control)
 - **mekf** - MEKF IMU Attitude Estimator (Sensor Fusion / Robotics)
 - **quickstart** - Simple "Hello World" example
-
 ---
 
 ## Sensor Examples
