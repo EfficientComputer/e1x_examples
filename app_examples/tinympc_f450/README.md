@@ -62,6 +62,9 @@ slack+dual: z = clip(u + y, [umin, umax]);  y += u - z
 - **`f450_cache_q20.h`** — generated cache (`A, B, Kinf, Quu⁻¹, AmBKt`, box), Q20.
 - **`tinympc.c` / `.h`** — the generic `__efficient__` ADMM kernel + bit-identical
   scalar reference (shared with the Crazyflie example; dims are the same).
+- **`pca9685.c` / `.h`** — I²C driver for the PCA9685 16-channel PWM chip.
+- **`f450_motors.c` / `.h`** — maps the four solver outputs to ESC pulse widths and
+  drives PCA9685 channels 0–3 (arm / write / failsafe-disarm).
 - **`main.c`** — a **wall-safe "in-place" cage demo** in trajectory-*tracking* mode
   (`e = x - xref(t)`): **hover → vertical bounce → yaw spin-in-place → hover**. It
   only commands motions a tight indoor cage + an IMU/mag/baro/GPS suite handle well
@@ -92,7 +95,32 @@ small cross, cm hover) add **optical flow + a downward rangefinder** (~$30, its
 sweet spot is exactly low-and-slow) or motion capture, and swap the GPS update in
 the estimator for the flow velocity update — then the tight maneuvers open up.
 
-## 6. Correctness
+## 6. Motor output (PCA9685 → 4 ESCs)
+
+The E1x has no native PWM peripheral, so the four motor commands go out over I²C to
+a **PCA9685** 16-channel PWM chip, which generates the ESC signals (channels 0–3).
+This is enabled by the `F450_MOTORS` compile definition (set for the E1x targets in
+`CMakeLists.txt`); build without it to run the loop as a pure sim with no PWM.
+
+- **Wiring**: PCA9685 on I²C bus `I2C_4_1` (SCL = DIGIO044, SDA = DIGIO045), address
+  `0x40`. ESC signal leads on PCA9685 channels 0–3 (motors 1–4).
+- **Mapping** (`f450_motors.c`): `pulse_us = HOVER_US + z_i · GAIN_US`, clamped to
+  1000–2000 µs, at `FREQ_HZ` (400 Hz default — low latency; drop to 50 Hz for older
+  analog ESCs). `HOVER_US` and `GAIN_US` are **per-airframe calibration** (hover
+  throttle pulse, and µs per unit of normalized-thrust command); the linear map is a
+  starting point — refine it with your motor/prop thrust curve.
+- **Arming / failsafe**: `f450_motors_init()` holds all four ESCs at 1000 µs to arm;
+  the geofence abort and the end of the routine both call `f450_motors_disarm()`
+  (all channels off).
+
+> ⚠️ **SAFETY — bench-test with PROPS OFF.** Flashing the E1x targets *arms the ESCs
+> and emits live PWM* that follows the demo trajectory. In this example the PWM is
+> driven from the demo's *simulated* state, so it's for verifying the output path
+> (scope the four channels, or run ESCs without props). For real flight, feed the
+> controller your *estimated* state instead of the internal model, and keep the
+> geofence as the failsafe.
+
+## 7. Correctness
 
 `__effcc_parallel` only parallelizes independent matvec outputs, so the fabric and
 scalar integer results are **bit-identical** — `PASS` means they matched exactly and

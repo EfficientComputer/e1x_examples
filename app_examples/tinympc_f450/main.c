@@ -18,6 +18,9 @@
 #include <stdint.h>
 #include "tinympc.h"
 #include "f450_cache_q20.h"
+#ifdef F450_MOTORS
+#include "f450_motors.h"        /* drive 4 ESCs via PCA9685 (hardware build only) */
+#endif
 
 #define ONE (1 << F450Q)
 #define N_SIM     1500          /* 30 s at 50 Hz */
@@ -69,6 +72,12 @@ int main(void)
     printf("[f450-cage] geofence +-%ld mm; no horizontal translation commanded\r\n", (long)GEOFENCE*1000/ONE);
     printf("[f450-cage] step  phase        z(mm) zref(mm)  yaw(deg)  horiz|off|(mm)\r\n");
 
+#ifdef F450_MOTORS
+    int motors_ok = (f450_motors_init() == 0);   /* PCA9685 up, ESCs armed at MIN */
+    printf(motors_ok ? "[f450-cage] PCA9685 armed (ESCs at MIN) -- keep PROPS OFF to bench-test\r\n"
+                     : "[f450-cage] PCA9685 init FAILED -- running sim only, no PWM out\r\n");
+#endif
+
     int ok = 1, geofence_hit = -1;
     long max_ztrack = 0;
     for (int k = 0; k < N_SIM; k++) {
@@ -98,9 +107,20 @@ int main(void)
             printf("[f450-cage] %4d  %-9s  %6ld  %6ld    %7ld       %6ld\r\n", k, ph,
                    (long)x[2]*1000/ONE, (long)xr[2]*1000/ONE, yaw_deg, hoff);
         }
-        if (geofence_hit >= 0) break;
+        if (geofence_hit >= 0) {
+#ifdef F450_MOTORS
+            if (motors_ok) f450_motors_disarm();      /* failsafe: cut motors on abort */
+#endif
+            break;
+        }
+#ifdef F450_MOTORS
+        if (motors_ok) f450_motors_write(z0);          /* emit 4 ESC PWM from the solve */
+#endif
         model_step(x, z0);
     }
+#ifdef F450_MOTORS
+    if (motors_ok) f450_motors_disarm();               /* stop motors when the routine ends */
+#endif
 
     if (geofence_hit >= 0) {
         printf("[f450-cage] GEOFENCE ABORT at step %d (drifted past safe radius)\r\n", geofence_hit);
