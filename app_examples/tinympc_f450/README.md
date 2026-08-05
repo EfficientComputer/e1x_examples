@@ -73,6 +73,9 @@ slack+dual: z = clip(u + y, [umin, umax]);  y += u - z
   **`posyaw.c/.h`** — fixed-point position/velocity complementary filter (GPS+baro
   +accel), quaternion rotation, and CORDIC-`atan2` mag heading.
   **`bmi323/bmm350/ens220/neo_m9n .c/.h`** — HAT sensor drivers.
+- **`main_check.c`** (target `tinympc_f450_check`) — sensor-check/calibration mode:
+  estimator only, **no motors**, CSV telemetry. **`f450_monitor.py`** — host live web
+  dashboard (3D attitude + calibration readouts) for that stream.
 - **`main.c`** — a **wall-safe "in-place" cage demo** in trajectory-*tracking* mode
   (`e = x - xref(t)`): **hover → vertical bounce → yaw spin-in-place → hover**. It
   only commands motions a tight indoor cage + an IMU/mag/baro/GPS suite handle well
@@ -164,7 +167,30 @@ BMI323 + BMM350 + ENS220 + NEO-M9N ─(int)→ estimator (all Q-format):
 > `GAIN_US`, the mag (hard/soft-iron + local field), the GPS origin, and the accel
 > range (±2 g → ±8 g) before flight.
 
-## 8. Correctness
+## 8. Sensor check + live monitor (`tinympc_f450_check` + `f450_monitor.py`)
+
+Before ever arming motors, bring the sensors up safely. **`tinympc_f450_check`** runs
+the full fixed-point estimator but **never touches the PCA9685** — flash it, hold the
+aircraft in your hand, and it streams a CSV telemetry line (~16 Hz) over the UART:
+raw-ish sensor values, plus the estimated attitude, position, velocity, and gyro bias.
+
+**`f450_monitor.py`** turns that stream into a **live web dashboard** — a 3D quad that
+tilts/rotates with the estimated attitude, plus calibration readouts (per-axis gyro/
+accel, `|accel|` which should read ≈1 g when level, mag, baro altitude, GPS fix +
+local N/E, and gyro-bias convergence):
+
+```bash
+python3 f450_monitor.py -p /dev/cu.usbmodem105 -b 108000   # live from the EVK
+python3 f450_monitor.py --sim                              # synthetic, no hardware
+# → open http://localhost:8420
+```
+
+Use it to verify, with props off: axis signs (tilt the board, watch roll/pitch track
+the right way), `|accel|≈1 g` at rest, the mag responds to heading, baro tracks
+up/down, GPS gets a 3D fix, and the gyro bias settles. Only once those look right is
+it safe to move to the armed `tinympc_f450_full`.
+
+## 9. Correctness
 
 `__effcc_parallel` only parallelizes independent matvec outputs, so the fabric and
 scalar integer results are **bit-identical** — `PASS` means they matched exactly and

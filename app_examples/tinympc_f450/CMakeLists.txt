@@ -32,3 +32,13 @@ target_compile_definitions(tinympc_f450_full_scalar PRIVATE F450_MOTORS)
 # link it explicitly so it resolves on toolchains that don't auto-link libm.
 target_link_libraries(tinympc_f450_full_fabric m)
 target_link_libraries(tinympc_f450_full_scalar m)
+
+# ── Sensor-check / calibration mode: estimator only, NO MOTORS, CSV telemetry ──
+add_eff_app(tinympc_f450_check
+    TYPE exe
+    ARCHS e1x
+    TARGETS scalar
+    SOURCE main_check.c sensors.c mekf_q20.c posyaw.c
+           bmi323.c bmm350.c ens220.c neo_m9n.c
+)
+target_link_libraries(tinympc_f450_check_scalar m)
