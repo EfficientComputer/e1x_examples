@@ -68,10 +68,11 @@ slack+dual: z = clip(u + y, [umin, umax]);  y += u - z
 - **`main_full.c`** — the **end-to-end fixed-point flight stack** (target
   `tinympc_f450_full`): real sensors → estimator → MPC → PWM (§8). `main.c` above
   is the pure-sim cage demo; `main_full.c` closes the loop on hardware.
-- **`sensors.c/.h`** — BMI323 (gyro+accel) + ENS220 (baro), converted to Q-format
-  with pure integer math. **`mekf_q20.c/.h`** — validated fixed-point attitude MEKF.
-  **`bmi323.c/.h`, `ens220.c/.h`** — HAT sensor drivers (BMM350 mag + NEO-M9N
-  GPS drivers arrive with the staged position/yaw follow-up).
+- **`sensors.c/.h`** — BMI323 + BMM350 + ENS220 + NEO-M9N → Q-format via pure
+  integer scaling. **`mekf_q20.c/.h`** — fixed-point attitude MEKF.
+  **`posyaw.c/.h`** — fixed-point position/velocity complementary filter (GPS+baro
+  +accel), quaternion rotation, and CORDIC-`atan2` mag heading.
+  **`bmi323/bmm350/ens220/neo_m9n .c/.h`** — HAT sensor drivers.
 - **`main.c`** — a **wall-safe "in-place" cage demo** in trajectory-*tracking* mode
   (`e = x - xref(t)`): **hover → vertical bounce → yaw spin-in-place → hover**. It
   only commands motions a tight indoor cage + an IMU/mag/baro/GPS suite handle well
@@ -134,29 +135,34 @@ int32 fixed point — no float, no soft-float** (the E1x has no FPU, so float wo
 be soft-float and dominate the loop):
 
 ```
-BMI323 + ENS220 ─(int)→ mekf_q20 attitude (Q15/Q20) ─┐
-                        gyro-integrated yaw, baro z   ├→ 12-state x̂ (Q20)
-                                                      ▼
-                    e = x̂ − xref(t) ─→ TinyMPC (Q20, fabric) ─→ f450_motors → PCA9685
+BMI323 + BMM350 + ENS220 + NEO-M9N ─(int)→ estimator (all Q-format):
+   mekf_q20 attitude · posyaw pos/vel (GPS+baro+accel) · gyro yaw + CORDIC mag
+                              └─→ 12-state x̂ (Q20)
+                                        ▼
+              e = x̂ − xref(t) ─→ TinyMPC (Q20, fabric) ─→ f450_motors → PCA9685
 ```
 
-- **Attitude**: the validated `mekf_q20` (gyro+accel; quaternion Q15, covariance
-  Q20, int32 hot path). Roll/pitch are read as the small-angle quaternion vector
-  (no `atan2`/`asin` — that trig would be soft-float); **yaw** is a fixed-point
-  gyro integrator.
-- **Altitude**: baro → Q20, plus a low-passed vertical velocity.
+- **Attitude** (`mekf_q20`): gyro+accel; quaternion Q15, covariance Q20, int32 hot
+  path. Roll/pitch read as the small-angle quaternion vector (no `atan2`/`asin` —
+  that trig would be soft-float).
+- **Position/velocity** (`posyaw.c`, `poskf`): an inertial + GPS/baro **complementary
+  filter** (integer gains, no covariance matrix to mis-scale) — accel rotated to
+  world by the Q15 quaternion, corrected toward baro (z, every step) and GPS (x,y,
+  each fix). Gives `px,py,pz,vx,vy,vz`.
+- **Yaw**: gyro integrator corrected toward the magnetometer heading, computed with
+  a fixed-point **CORDIC `atan2`** (no float trig) on the world-frame field.
 - **Sensor scaling** is pure integer (`gyro_q15 = raw·34907/1000`,
-  `a_norm_q8 = raw>>6`, baro subtract-and-scale).
-- The only float is `mekf_q20_init` at startup (one-time) — off the hot path.
-- Validated on host: conversions, yaw integrator, and attitude tracking all match
-  a float reference.
+  `a_norm_q8 = raw>>6`, `accel_q20 = raw·628`, baro/GPS subtract-and-scale).
+- The **only** float is one-time init (`mekf_q20_init`, GPS-origin `cosf`) — off the
+  hot path. The entire per-step path is int32 fixed point.
+- **Host-validated** against float references: sensor scales, yaw integrator,
+  attitude tracking, CORDIC `atan2` (0.03° error), quaternion rotation, and the
+  position filter converging to baro/GPS. The geofence is live on the estimated
+  position.
 
-**Staged fixed-point follow-up** (chosen "inner-loop-first"): horizontal
-position/velocity fusion (GPS + baro + accel) and mag-yaw (BMM350) as fixed-point
-*complementary filters*, validated on host before hardware. Until then `px,py,vx,vy`
-read 0 and the geofence is inactive, so **`tinympc_f450_full` is bench/tethered
-only, props off** — it exercises the full sense→estimate→control→PWM path but can't
-hold horizontal position yet.
+> ⚠️ Still real motors: bench-test with **PROPS OFF** and calibrate `HOVER_US`/
+> `GAIN_US`, the mag (hard/soft-iron + local field), the GPS origin, and the accel
+> range (±2 g → ±8 g) before flight.
 
 ## 8. Correctness
 

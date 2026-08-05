@@ -20,8 +20,8 @@ add_eff_app(tinympc_f450_full
     TYPE exe
     ARCHS e1x
     TARGETS fabric scalar
-    SOURCE main_full.c tinympc.c pca9685.c f450_motors.c sensors.c mekf_q20.c
-           bmi323.c ens220.c
+    SOURCE main_full.c tinympc.c pca9685.c f450_motors.c sensors.c mekf_q20.c posyaw.c
+           bmi323.c bmm350.c ens220.c neo_m9n.c
 )
 
 eff_subtarget_compile_options(tinympc_f450_full_fabric PRIVATE -DUSE_PRAGMAS --disable-memory-ordering)
