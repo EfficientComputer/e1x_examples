@@ -8,9 +8,9 @@ This example sorts an array of 32-bit integers into ascending order using a bott
 
 ### What is merge sort?
 
-Merge sort builds a sorted array by repeatedly merging runs that are already sorted. Two sorted runs can be combined into one longer sorted run in a single pass: compare the front element of each run, take the smaller one, and advance only the side it came from. Starting from single elements, which are trivially sorted, the run length doubles on every pass until the whole array is one sorted run.
+Merge sort builds a sorted array by repeatedly merging runs that are already sorted. Two sorted runs can be combined into one longer sorted run in a single pass: compare the front element of each run, take the smaller one, and advance only the side it came from. Single elements are trivially sorted, so merging starts there and the run length doubles on every pass until the whole array is one sorted run.
 
-This example uses the bottom-up form of the algorithm, so the passes are driven by loops rather than by recursion. It merges between two buffers. Each pass reads runs from one buffer and writes merged runs into the other, then the two buffers swap roles for the next pass. Because output is never written over input the same pass is still reading, no element has to be shifted inside the array. If the last pass leaves the sorted data in the scratch buffer, it is copied back into the original array.
+This example uses the bottom-up form of the algorithm, so the passes are driven by loops rather than by recursion. It merges between two buffers. Each pass reads runs from one buffer and writes merged runs into the other, and then the two buffers swap roles for the next pass. Because output is never written over input that the same pass is still reading, no element has to be shifted inside the array. If the last pass leaves the sorted data in the scratch buffer, it is copied back into the original array.
 
 ### Procedure
 
@@ -44,11 +44,11 @@ The Electron E1x runs programs on the Fabric architecture, a spatial dataflow de
 
 Merge sort is dominated by comparisons, index updates, and memory traffic rather than heavy arithmetic, and the Fabric handles that mix well:
 
-- The slices merged within a single pass are independent of one another, so many of them advance **at the same time** across the Fabric.
-- The inner merge loop is written without branches, so the comparison result selects both the value that is stored and the index that advances, and the merge flows as a **pipeline** instead of stalling on an unpredictable decision.
-- Loading the next candidate element **overlaps** with writing the current output, so memory latency is hidden behind useful work.
-- The two front values and the running indexes stay **resident** near the compute elements, cutting repeated trips to memory.
-- Alternating between the two buffers keeps the access pattern of each pass sequential and predictable, so little energy goes to control overhead.
+- The slices merged within a single pass are independent of one another, so many of them advance **at the same time** across the Fabric
+- The inner merge loop is written without branches, so the comparison result selects both the value that is stored and the index that advances, and the merge flows as a **pipeline** instead of stalling on an unpredictable decision
+- Loading the next candidate element **overlaps** with writing the current output, so memory latency is hidden behind useful work
+- The two front values and the running indexes stay **resident** near the compute elements, cutting repeated trips to memory
+- Alternating between the two buffers keeps the access pattern of each pass sequential and predictable, so little energy goes to control overhead
 
 The result is efficient sorting at low energy, which is the metric that matters most for battery-powered and always-on devices.
 
