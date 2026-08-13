@@ -42,6 +42,7 @@ This project provides example apps demonstrating optimized algorithms running on
 - **quickstart**: Simple "Hello World" example
 - **recursive_factorial**: Recursive Factorial (Math)
 - **smv**: Sparse Matrix-Vector Multiply (Sparse Linear Algebra)
+- **sort**: Merge Sort (Sorting)
 - **spadd**: Sparse Matrix Addition (Sparse Linear Algebra)
 - **sparse**: Sparse Vector Operations (Sparse Linear Algebra)
 - **spmspv**: Sparse Matrix-Sparse Vector Multiply (Sparse Linear Algebra)
