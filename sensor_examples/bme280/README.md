@@ -16,7 +16,7 @@ The BME280 example demonstrates how to interface with Bosch's BME280 environment
 
 ## Connecting Your Sensor
 
-Connect your sensor module to the EVK using the pin mappings shown below. Please note that Bank 0 is used for the BME280 and Bank 2 is used for the ADXL372. This was done to show the use of different peripheral modes on different Banks and the pin mappings associated with them. For more information peripheral modes and pin mappings please see Sections 7.3 and 7.4 of the [E1x Datasheet](https://docs.efficient.computer/assets/files/E1M3M4M-Datasheet-v0.10-505a7892ef5fb5e52b9c52952fb9e1c2.pdf).
+Connect your sensor module to the EVK using the pin mappings shown below. Please note that Bank 0 is used for the BME280 and Bank 2 is used for the ADXL372. This was done to show the use of different peripheral modes on different Banks and the pin mappings associated with them. For more information peripheral modes and pin mappings please see Sections 7.3 and 7.4 of the [E1x Datasheet](https://docs.efficient.computer/datasheets/e1x).
 
 Note: The pin mappings are shown in first two columns. The second and third columns have been added for additional info/context.
 

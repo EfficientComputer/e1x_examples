@@ -50,7 +50,7 @@ This project provides example apps demonstrating optimized algorithms running on
 
 ## Getting Started
 
-If you haven't already, please make sure you've set up your board and development environment using our [Evaluation Kit Setup Instructions](https://docs.efficient.computer/evaluation-kit). This project supports both our physical EVK and our Cloud EVK.
+If you haven't already, please make sure you've set up your board and development environment using our [Evaluation Kit Setup Instructions](https://docs.efficient.computer/evk/sdk-setup/linux). This project supports both our physical EVK and our Cloud EVK.
 
 Additional details are contained within each app's folder.
 
@@ -85,7 +85,7 @@ cmake -G Ninja ..
 ninja
 ```
 
-This will produce .hex files for flashing in `../bld/<app>/fabric/<app>.hex`.
+This will produce .bin files for flashing in `../bld/<app>/fabric/<app>.bin`.
 
 To build a specific app, specify your desired build to ninja:
 
@@ -101,10 +101,10 @@ ninja <app>/scalar/<app>
 
 ### Flashing
 
-To flash an app to the EVK, make sure your BOOT switches on the board are set to `101` and run the following command from an app's `fabric` folder where the .hex is contained:
+To flash an app to the EVK, make sure your BOOT switches on the board are set to `101` and run the following command from an app's `fabric` folder where the .bin is contained:
 
 ```
-eff-flash <app>.hex sram
+eff-flash <app>.bin sram
 ```
 
 If you'd like to flash the app to non-volatile memory, please change `sram` to `mram`, flash, power off your board, set BOOT switches to 010, then power on to run the app.

@@ -2,7 +2,7 @@
 
 Welcome to the E1x Examples repository! This collection of example applications is designed to help you get up and running quickly with the E1x processor and the E1x Evaluation Kit (EVK). Whether you're exploring E1x for the first time or building production applications, these examples provide a solid starting point and reference implementations that demonstrate best practices for developing on Efficient hardware. Use them as templates for your own projects, or as building blocks to accelerate your development.
 
-If you haven't already, please make sure you've set up your board and development environment using our [Evaluation Kit Setup Instructions](https://docs.efficient.computer/evaluation-kit).
+If you haven't already, please make sure you've set up your board and development environment using our [Evaluation Kit Setup Instructions](https://docs.efficient.computer/evk/sdk-setup/linux).
 
 ---
 
