@@ -8,9 +8,9 @@ This project provides example apps demonstrating how to interface various sensor
 
 ## Apps
 
-* **ADXL372** - High-G Accelerometer
-* **BME280** - Environmental Sensor
-* **ARDUCAM_OV2640** - Camera Module
+* **ADXL372**: High-G Accelerometer
+* **BME280**: Environmental Sensor
+* **ARDUCAM_OV2640**: Camera Module
 
 ## Getting Started
 
