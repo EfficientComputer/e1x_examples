@@ -39,7 +39,6 @@ Optimized algorithm implementations demonstrating how to leverage E1x's architec
 - **spadd**: Sparse Matrix Addition (Sparse Linear Algebra)
 - **sparse**: Sparse Vector Operations (Sparse Linear Algebra)
 - **sqrt_newton**: Newton's Method Square Root (Math)
-- **mekf**: MEKF IMU Attitude Estimator (Sensor Fusion / Robotics)
 
 ---
 
