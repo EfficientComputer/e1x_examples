@@ -66,13 +66,19 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
-Then, to build all apps, execute the following commands from the top level of this folder:
+Then, to build all apps, execute the following commands from the top level of this folder, passing the location of the EFF SDK:
 
 ```
 mkdir bld
 cd bld
-cmake -G Ninja ..
+cmake -G Ninja -DEFF_SDK_ROOT_DIR=<path to the EFF SDK> ..
 ninja
+```
+
+The SDK is the `sdk` folder of the installed `effcc` package. From the Python environment that has `effcc` installed, this command works in both bash and PowerShell:
+
+```
+cmake -G Ninja -DEFF_SDK_ROOT_DIR="$(python -c 'import effcc; print(effcc.__path__[0])')/sdk" ..
 ```
 
 This will produce .hex files for flashing in `../bld/<app>/fabric/<app>.hex`.
