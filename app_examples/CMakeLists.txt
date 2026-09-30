@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(app_examples)
+# The SDK (setup_sdk.cmake) configures effcc as the compiler. Declare no languages here
+# so CMake doesn't probe for a host compiler first: on Windows that probe picks up MSVC or
+# MinGW and injects host link flags (-luuid, --out-implib, ...) that the effcc linker
+# rejects. CMAKE_SYSTEM_NAME must be set before project() for the same reason.
+set(CMAKE_SYSTEM_NAME Generic)
+project(app_examples LANGUAGES NONE)
 
 # Uncomment to enable hand-optimized app versions:
 #
