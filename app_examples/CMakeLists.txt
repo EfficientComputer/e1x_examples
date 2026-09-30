@@ -14,12 +14,30 @@ project(app_examples LANGUAGES NONE)
 # EVK Requires UART peripheral 3
 set(EFF_STDIO_PORT 3)
 
-# Pass the EFF SDK location with -DEFF_SDK_ROOT_DIR=<path>
+# The EFF SDK is the sdk folder of the installed effcc package. Pass it with
+# -DEFF_SDK_ROOT_DIR=<path> (or the EFF_SDK_ROOT_DIR environment variable); otherwise ask
+# the active Python environment where the package is, which is what a wheel install gives.
+if(NOT DEFINED EFF_SDK_ROOT_DIR AND DEFINED ENV{EFF_SDK_ROOT_DIR})
+  set(EFF_SDK_ROOT_DIR "$ENV{EFF_SDK_ROOT_DIR}")
+endif()
 if(NOT DEFINED EFF_SDK_ROOT_DIR)
-  message(
-    FATAL_ERROR
-      "Set EFF_SDK_ROOT_DIR to the EFF SDK, for example -DEFF_SDK_ROOT_DIR=<effcc package>/sdk"
-  )
+  execute_process(
+    COMMAND python -c "import effcc; print(effcc.__path__[0])"
+    OUTPUT_VARIABLE _effcc_pkg
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    RESULT_VARIABLE _effcc_rc)
+  if(NOT _effcc_rc EQUAL 0)
+    message(
+      FATAL_ERROR
+        "effcc not found. Activate the Python environment it is installed in, or pass -DEFF_SDK_ROOT_DIR=<effcc package>/sdk"
+    )
+  endif()
+  set(EFF_SDK_ROOT_DIR "${_effcc_pkg}/sdk")
+  # Tell the SDK where the compiler binaries are as well. On Windows the environment's
+  # effcc launcher lives in Scripts\, which the SDK's PATH lookup does not understand.
+  if(NOT DEFINED EFFCC_DIR)
+    set(EFFCC_DIR "${_effcc_pkg}")
+  endif()
 endif()
 file(REAL_PATH "${EFF_SDK_ROOT_DIR}" EFF_SDK_ROOT_DIR)
 include(${EFF_SDK_ROOT_DIR}/setup_sdk.cmake)
